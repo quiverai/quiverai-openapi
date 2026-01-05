@@ -69,7 +69,7 @@ paths:
                                 data:
                                     - id: arrow-0.5
                                       object: model
-                                      name: "Quiver: Arrow 0.5"
+                                      name: "Arrow 0.5"
                                       description: "Optimized for high-quality icon and illustration generation"
                                       created: 1704067200
                                       owned_by: quiver
@@ -135,7 +135,7 @@ paths:
                             example:
                                 id: arrow-0.5
                                 object: model
-                                name: "Quiver: Arrow 0.5"
+                                name: "Arrow 0.5"
                                 description: "Optimized for high-quality icon and illustration generation"
                                 created: 1704067200
                                 owned_by: quiver
@@ -1626,7 +1626,7 @@ components:
                 name:
                     type: string
                     description: Human-readable name of the model.
-                    example: "Quiver: Arrow 0.5"
+                    example: "Arrow 0.5"
                 description:
                     type: string
                     description: A description of the model and its capabilities.
