@@ -22,8 +22,6 @@ tags:
       description: Operations for listing and retrieving available models
     - name: SVG
       description: Operations for creating and transforming SVG graphics, including creating, editing and animating.
-    - name: Images
-      description: Operations for vectorizing images
 paths:
     /v1/chat/completions:
         x-hidden: true
@@ -180,7 +178,7 @@ paths:
             operationId: createSVG
             tags:
                 - SVGs
-            summary: Create SVGs
+            summary: Text to SVG
             description: |
                 Creates one or more SVG graphics based on a text prompt and optional
                 reference images. Supports streaming for real-time progressive rendering.
@@ -495,12 +493,12 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-    /v1/images/vectorizations:
+    /v1/svgs/vectorizations:
         post:
             operationId: createSVGVectorization
             tags:
-                - Images
-            summary: Vectorize images to SVGs
+                - SVGs
+            summary: Image to SVG
             description: |
                 Converts a raster image (PNG, JPEG, WebP) into an SVG graphic.
                 Requires exactly one input image. Supports streaming for real-time
@@ -604,11 +602,11 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-    /v1/images/vectorizations/checks:
+    /v1/svgs/vectorizations/checks:
         post:
             operationId: checkSVGVectorizability
             tags:
-                - Images
+                - SVGs
             summary: Check image vectorizability
             description: |
                 Analyzes an image and returns whether it is suitable for vectorization.
