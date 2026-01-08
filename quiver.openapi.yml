@@ -173,7 +173,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-    /v1/svg:
+    /v1/svgs:
         post:
             operationId: createSVG
             tags:
@@ -298,7 +298,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-    /v1/svg/edits:
+    /v1/svgs/edits:
         post:
             operationId: createSVGEdit
             tags:
@@ -414,7 +414,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-    /v1/svg/animations:
+    /v1/svgs/animations:
         post:
             operationId: createSVGAnimation
             tags:
@@ -493,11 +493,11 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-    /v1/svg/vectorizations:
+    /v1/images/vectorizations:
         post:
             operationId: createSVGVectorization
             tags:
-                - SVG
+                - Image
             summary: Vectorize image to SVG
             description: |
                 Converts a raster image (PNG, JPEG, WebP) into an SVG graphic.
@@ -602,11 +602,11 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-    /v1/svg/vectorizations/check:
+    /v1/images/vectorizations/checks:
         post:
             operationId: checkSVGVectorizability
             tags:
-                - SVG
+                - Image
             summary: Check image vectorizability
             description: |
                 Analyzes an image and returns whether it is suitable for vectorization.
@@ -664,7 +664,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-    /v1/svg/icons:
+    /v1/svgs/icons:
         post:
             operationId: createIcon
             tags:
@@ -1810,24 +1810,28 @@ components:
             required:
                 - object
                 - data
+        InputReferenceUrl:
+            type: object
+            required:
+                - url
+            properties:
+                url:
+                    type: string
+                    description: Image URL or base64 data URI
+                    example: https://example.com/uploads/reference1.png
+        InputReferenceBase64:
+            type: object
+            required:
+                - base64
+            properties:
+                base64:
+                    type: string
+                    description: Base64-encoded image data
+                    example: iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==
         InputReference:
             oneOf:
-                - type: object
-                  required:
-                      - url
-                  properties:
-                      url:
-                          type: string
-                          description: Image URL or base64 data URI
-                          example: https://example.com/uploads/reference1.png
-                - type: object
-                  required:
-                      - base64
-                  properties:
-                      base64:
-                          type: string
-                          description: Base64-encoded image data
-                          example: iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==
+                - $ref: "#/components/schemas/InputReferenceUrl"
+                - $ref: "#/components/schemas/InputReferenceBase64"
             description: Reference image input (URL or base64-encoded)
         SVGInput:
             type: object
@@ -1851,28 +1855,32 @@ components:
                         Maximum of 4 images.
                     items:
                         $ref: "#/components/schemas/InputReference"
+        SVGInlineSource:
+            type: object
+            required:
+                - svg
+            properties:
+                svg:
+                    type: string
+                    description: Inline SVG markup
+                    example: <svg xmlns="http://www.w3.org/2000/svg">...</svg>
+        SVGUrlSource:
+            type: object
+            required:
+                - svg_url
+            properties:
+                svg_url:
+                    type: string
+                    format: uri
+                    description: URL to the source SVG
+                    example: https://example.com/source.svg
         SVGSource:
             oneOf:
                 - type: string
                   description: Inline SVG markup
                   example: <svg xmlns="http://www.w3.org/2000/svg">...</svg>
-                - type: object
-                  required:
-                      - svg
-                  properties:
-                      svg:
-                          type: string
-                          description: Inline SVG markup
-                          example: <svg xmlns="http://www.w3.org/2000/svg">...</svg>
-                - type: object
-                  required:
-                      - svg_url
-                  properties:
-                      svg_url:
-                          type: string
-                          format: uri
-                          description: URL to the source SVG
-                          example: https://example.com/source.svg
+                - $ref: "#/components/schemas/SVGInlineSource"
+                - $ref: "#/components/schemas/SVGUrlSource"
             description: Source SVG for editing operations (inline SVG markup or URL)
         SVGEditInput:
             allOf:
@@ -2436,8 +2444,7 @@ components:
                       - mode
                   properties:
                       mode:
-                          type: string
-                          const: icon
+                          $ref: "#/components/schemas/SVGMode"
                           description: Generation mode, always icon for icon requests
                       canvas:
                           $ref: "#/components/schemas/GenerateCanvas"
