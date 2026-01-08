@@ -21,7 +21,9 @@ tags:
     - name: Models
       description: Operations for listing and retrieving available models
     - name: SVG
-      description: Operations for creating and transforming SVG graphics (create, edit, animate, icons, vectorize)
+      description: Operations for creating and transforming SVG graphics, including creating, editing and animating.
+    - name: Images
+      description: Operations for vectorizing images
 paths:
     /v1/chat/completions:
         x-hidden: true
@@ -177,7 +179,7 @@ paths:
         post:
             operationId: createSVG
             tags:
-                - SVG
+                - SVGs
             summary: Create SVGs
             description: |
                 Creates one or more SVG graphics based on a text prompt and optional
@@ -302,7 +304,7 @@ paths:
         post:
             operationId: createSVGEdit
             tags:
-                - SVG
+                - SVGs
             summary: Edit SVGs
             description: |
                 Edits an existing SVG graphic based on a text prompt and optional
@@ -418,7 +420,7 @@ paths:
         post:
             operationId: createSVGAnimation
             tags:
-                - SVG
+                - SVGs
             summary: Animate SVGs
             description: |
                 Adds CSS animations to an existing SVG graphic based on a motion prompt.
@@ -497,7 +499,7 @@ paths:
         post:
             operationId: createSVGVectorization
             tags:
-                - Image
+                - Images
             summary: Vectorize image to SVG
             description: |
                 Converts a raster image (PNG, JPEG, WebP) into an SVG graphic.
@@ -606,7 +608,7 @@ paths:
         post:
             operationId: checkSVGVectorizability
             tags:
-                - Image
+                - Images
             summary: Check image vectorizability
             description: |
                 Analyzes an image and returns whether it is suitable for vectorization.
@@ -668,7 +670,7 @@ paths:
         post:
             operationId: createIcon
             tags:
-                - SVG
+                - SVGs
             summary: Create icon
             description: |
                 Creates one or more icons based on a text prompt.
