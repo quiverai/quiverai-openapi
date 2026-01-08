@@ -24,6 +24,7 @@ tags:
       description: Operations for generating and editing SVG graphics
 paths:
     /chat/completions:
+        x-hidden: true
         post:
             x-speakeasy-ignore: true
             operationId: createChatCompletion
