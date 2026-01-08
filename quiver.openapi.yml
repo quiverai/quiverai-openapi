@@ -11,7 +11,7 @@ info:
         name: Quiver API Support
         url: https://quiver.ai/support
 servers:
-    - url: https://api.quiver.ai/v1
+    - url: https://api.quiver.ai
       description: Production server
 security:
     - BearerAuth: []
@@ -21,9 +21,9 @@ tags:
     - name: Models
       description: Operations for listing and retrieving available models
     - name: SVG
-      description: Operations for generating and editing SVG graphics
+      description: Operations for creating and transforming SVG graphics (create, edit, animate, icons, vectorize)
 paths:
-    /chat/completions:
+    /v1/chat/completions:
         x-hidden: true
         post:
             x-speakeasy-ignore: true
@@ -49,7 +49,7 @@ paths:
                                 $ref: "#/components/schemas/CreateChatCompletionStreamResponse"
             description: |
                 Creates a model response for the given chat conversation.
-    /models:
+    /v1/models:
         get:
             operationId: listModels
             tags:
@@ -83,10 +83,9 @@ paths:
                                           completion: "0.000002"
                                           image: "0.00001"
                                       supported_operations:
-                                          - svg_generate
+                                          - svg_create
                                           - svg_edit
                                           - svg_animate
-                                          - svg_collections
                                           - chat_completions
                                       svg_capabilities:
                                           supported_modes:
@@ -108,7 +107,7 @@ paths:
                                               "stop",
                                               "seed",
                                           ]
-    /models/{model}:
+    /v1/models/{model}:
         get:
             operationId: retrieveModel
             tags:
@@ -149,10 +148,9 @@ paths:
                                     completion: "0.000002"
                                     image: "0.00001"
                                 supported_operations:
-                                    - svg_generate
+                                    - svg_create
                                     - svg_edit
                                     - svg_animate
-                                    - svg_collections
                                     - chat_completions
                                 svg_capabilities:
                                     supported_modes:
@@ -175,14 +173,14 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-    /svg/generate:
+    /v1/svg:
         post:
-            operationId: createSVGGeneration
+            operationId: createSVG
             tags:
                 - SVG
-            summary: Generate SVGs
+            summary: Create SVGs
             description: |
-                Generates one or more SVG graphics based on a text prompt and optional
+                Creates one or more SVG graphics based on a text prompt and optional
                 reference images. Supports streaming for real-time progressive rendering.
 
                 When `stream` is set to `true`, the response will be sent as Server-Sent
@@ -194,7 +192,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: "#/components/schemas/QuiverMessage"
+                            $ref: "#/components/schemas/CreateSVGRequest"
                         examples:
                             basic:
                                 summary: Basic SVG generation
@@ -219,38 +217,30 @@ paths:
                                         prompt: Generate an icon of a unicorn
                                         references:
                                             - url: https://example.com/uploads/source1.png
-                                    svg_params:
-                                        mode: icon
-                                        canvas:
-                                            view_box:
-                                                width: 24
-                                                height: 24
-                                            safe_zone:
-                                                mode: relative
-                                                value: 0.1
-                                                overrides:
-                                                    bottom: 0.15
-                                        design:
-                                            style_preset: outline
-                                            complexity: 2
-                                            include_background: false
-                                            stroke_width: 1.5
-                                            colors:
-                                                max_colors: 4
-                                                use_gradients: false
-                                                palette:
-                                                    - "#12FBA2"
-                                                    - "#1A1A1A"
-                                                    - "#FFFFFF"
-                                                roles:
-                                                    background:
-                                                        - "#FFFFFF"
-                                                    primary:
-                                                        - "#1A1A1A"
-                                                    accent:
-                                                        - "#12FBA2"
-                                                adherence: tints_and_shades
-                                                allow_opacity: true
+                                    mode: icon
+                                    canvas:
+                                        aspect_ratio: "1:1"
+                                        safe_zone:
+                                            mode: relative
+                                            value: 0.1
+                                            overrides:
+                                                bottom: 0.15
+                                    design:
+                                        style_preset: outline
+                                        complexity: 2
+                                        include_background: false
+                                        stroke_width: 1.5
+                                        colors:
+                                            max_colors: 4
+                                            allow_gradients: false
+                                            values:
+                                                - value: "#FFFFFF"
+                                                  name: background
+                                                - value: "#1A1A1A"
+                                                  name: primary
+                                                - value: "#12FBA2"
+                                                  name: accent
+                                            adherence: tints_and_shades
             responses:
                 "200":
                     description: OK
@@ -277,16 +267,16 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/SVGStreamEvent"
                             example: |
-                                event: svg_generate.reasoning
+                                event: svg_create.reasoning
                                 data: {"id":"svg-abc123","text":"Creating a minimalist icon with clean geometric shapes..."}
 
-                                event: svg_generate.draft
+                                event: svg_create.draft
                                 data: {"id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32..."}
 
-                                event: svg_generate.draft
+                                event: svg_create.draft
                                 data: {"id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32 L300 100 Z\"/></svg>"}
 
-                                event: svg_generate.content
+                                event: svg_create.content
                                 data: {"id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32 L300 100 Z\"/></svg>","usage":{"total_tokens":1024,"input_tokens":256,"output_tokens":768}}
 
                                 data: [DONE]
@@ -308,7 +298,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-    /svg/edits:
+    /v1/svg/edits:
         post:
             operationId: createSVGEdit
             tags:
@@ -346,8 +336,8 @@ paths:
                                         prompt: Simplify the design and use fewer paths
                                         source:
                                             svg_url: https://example.com/source.svg
-                                        constraints:
-                                            max_paths: 64
+                                    constraints:
+                                        max_paths: 64
                             streaming:
                                 summary: Streaming edit with style modifications
                                 value:
@@ -358,11 +348,14 @@ paths:
                                         prompt: Convert to a duotone style
                                         source:
                                             svg: <svg xmlns="http://www.w3.org/2000/svg">...</svg>
-                                        style:
-                                            preset: duotone-minimal
-                                            palette:
-                                                - "#000000"
-                                                - "#FF6B6B"
+                                    design:
+                                        style_preset: duotone
+                                        colors:
+                                            values:
+                                                - value: "#000000"
+                                                  name: primary
+                                                - value: "#FF6B6B"
+                                                  name: accent
             responses:
                 "200":
                     description: OK
@@ -421,7 +414,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-    /svg/animate:
+    /v1/svg/animations:
         post:
             operationId: createSVGAnimation
             tags:
@@ -500,7 +493,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-    /svg/vectorize:
+    /v1/svg/vectorizations:
         post:
             operationId: createSVGVectorization
             tags:
@@ -545,17 +538,16 @@ paths:
                                         image:
                                             url: https://example.com/photo.jpg
                                         instructions: Simplify to minimal geometric shapes
-                                    svg_params:
-                                        mode: icon
-                                        canvas:
-                                            view_box:
-                                                width: 24
-                                                height: 24
-                                        design:
-                                            style_preset: flat
-                                            complexity: 2
-                                            colors:
-                                                max_colors: 4
+                                    mode: icon
+                                    canvas:
+                                        safe_zone:
+                                            mode: relative
+                                            value: 0.1
+                                    design:
+                                        style_preset: flat
+                                        complexity: 2
+                                        colors:
+                                            max_colors: 4
             responses:
                 "200":
                     description: OK
@@ -610,9 +602,9 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-    /svg/vectorize/check:
+    /v1/svg/vectorizations/check:
         post:
-            operationId: checkVectorizability
+            operationId: checkSVGVectorizability
             tags:
                 - SVG
             summary: Check image vectorizability
@@ -672,17 +664,16 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-    /svg/collections:
+    /v1/svg/icons:
         post:
-            operationId: createSVGCollection
+            operationId: createIcon
             tags:
                 - SVG
-            summary: Generate SVG collections
+            summary: Create icon
             description: |
-                Generates an icon set from a single descriptive prompt. The model will
-                interpret the prompt to create multiple coherent, related SVGs.
-
-                Example prompt: "create an icon set with home, web, computer, and settings icons"
+                Creates one or more icons based on a text prompt.
+                Icons are always generated with a 1:1 aspect ratio and optimized
+                for use at various scales.
 
                 Supports streaming for real-time progressive rendering.
             security:
@@ -692,53 +683,45 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: "#/components/schemas/CollectionSVGRequest"
+                            $ref: "#/components/schemas/CreateIconRequest"
                         examples:
                             basic:
-                                summary: Basic icon set generation
+                                summary: Basic icon generation
                                 value:
                                     model: arrow-0.5
                                     input:
-                                        prompt: Create an icon set with home, settings, user, and search icons
+                                        prompt: A minimalist unicorn icon
                             with-reference:
-                                summary: Icon set with style reference
+                                summary: Icon with style reference
                                 value:
                                     model: arrow-0.5
                                     stream: true
-                                    temperature: 0.7
                                     input:
-                                        prompt: Create a navigation icon set with home, explore, notifications, and profile icons
+                                        prompt: A sleek, modern unicorn icon
                                         references:
                                             - url: https://example.com/style-reference.png
-                                    svg_params:
-                                        mode: icon
-                                        canvas:
-                                            view_box:
-                                                width: 24
-                                                height: 24
-                                        design:
-                                            style_preset: outline
-                                            stroke_width: 2
-                                            colors:
-                                                max_colors: 2
+                                    design:
+                                        style_preset: outline
+                                        colors:
+                                            values:
+                                                - value: "#1A1A1A"
+                                                  name: primary
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: "#/components/schemas/CollectionResponse"
+                                $ref: "#/components/schemas/SVGResponse"
                             example:
                                 created: 1704067200
-                                items:
-                                    - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">...</svg>
-                                      mime_type: image/svg+xml
+                                data:
                                     - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">...</svg>
                                       mime_type: image/svg+xml
                                 usage:
-                                    total_tokens: 2048
+                                    total_tokens: 1024
                                     input_tokens: 256
-                                    output_tokens: 1792
+                                    output_tokens: 768
                         text/event-stream:
                             x-speakeasy-sse-sentinel: "[DONE]"
                             schema:
@@ -1670,10 +1653,9 @@ components:
                         $ref: "#/components/schemas/SupportedOperation"
                     example:
                         [
-                            "svg_generate",
+                            "svg_create",
                             "svg_edit",
                             "svg_animate",
-                            "svg_collections",
                             "chat_completions",
                         ]
                 svg_capabilities:
@@ -1696,13 +1678,12 @@ components:
             type: string
             description: API operation that the model supports.
             enum:
-                - svg_generate
+                - svg_create
                 - svg_edit
                 - svg_animate
                 - svg_vectorize
-                - svg_collections
                 - chat_completions
-            example: svg_generate
+            example: svg_create
         SVGCapabilities:
             type: object
             description: SVG-specific capabilities and recommendations for the model.
@@ -1711,16 +1692,22 @@ components:
                     type: array
                     description: SVG generation modes the model excels at.
                     items:
-                        type: string
-                        enum: [icon, illustration, logo]
+                        $ref: "#/components/schemas/SVGMode"
                     example: ["icon", "illustration", "logo"]
                 supported_styles:
                     type: array
                     description: Style presets the model supports.
                     items:
-                        type: string
-                        enum: [flat, outline, duotone, gradient]
-                    example: ["flat", "outline", "duotone", "gradient"]
+                        $ref: "#/components/schemas/StylePreset"
+                    example:
+                        [
+                            "flat",
+                            "outline",
+                            "duotone",
+                            "gradient",
+                            "isometric",
+                            "hand_drawn",
+                        ]
                 max_complexity:
                     type: integer
                     description: Maximum complexity level (1-4) the model can handle well.
@@ -1824,14 +1811,24 @@ components:
                 - object
                 - data
         InputReference:
-            type: object
-            required:
-                - url
-            properties:
-                url:
-                    type: string
-                    description: Image URL or base64 data URI
-                    example: https://example.com/uploads/reference1.png
+            oneOf:
+                - type: object
+                  required:
+                      - url
+                  properties:
+                      url:
+                          type: string
+                          description: Image URL or base64 data URI
+                          example: https://example.com/uploads/reference1.png
+                - type: object
+                  required:
+                      - base64
+                  properties:
+                      base64:
+                          type: string
+                          description: Base64-encoded image data
+                          example: iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==
+            description: Reference image input (URL or base64-encoded)
         SVGInput:
             type: object
             required:
@@ -1855,9 +1852,28 @@ components:
                     items:
                         $ref: "#/components/schemas/InputReference"
         SVGSource:
-            type: string
+            oneOf:
+                - type: string
+                  description: Inline SVG markup
+                  example: <svg xmlns="http://www.w3.org/2000/svg">...</svg>
+                - type: object
+                  required:
+                      - svg
+                  properties:
+                      svg:
+                          type: string
+                          description: Inline SVG markup
+                          example: <svg xmlns="http://www.w3.org/2000/svg">...</svg>
+                - type: object
+                  required:
+                      - svg_url
+                  properties:
+                      svg_url:
+                          type: string
+                          format: uri
+                          description: URL to the source SVG
+                          example: https://example.com/source.svg
             description: Source SVG for editing operations (inline SVG markup or URL)
-            example: <svg xmlns="http://www.w3.org/2000/svg">...</svg>
         SVGEditInput:
             allOf:
                 - $ref: "#/components/schemas/SVGInput"
@@ -1940,32 +1956,30 @@ components:
 
                         Determinism is not guaranteed.
 
-        QuiverMessage:
-            anyOf:
-                - $ref: "#/components/schemas/CreateSVGRequest"
-                - $ref: "#/components/schemas/EditSVGRequest"
         CreateSVGRequest:
             allOf:
                 - $ref: "#/components/schemas/SVGRequestBase"
+                - $ref: "#/components/schemas/SVGParamsBase"
                 - type: object
                   required:
                       - input
                   properties:
                       input:
                           $ref: "#/components/schemas/SVGInput"
-                      svg_params:
-                          $ref: "#/components/schemas/SVGParams"
+                      canvas:
+                          $ref: "#/components/schemas/GenerateCanvas"
         EditSVGRequest:
             allOf:
                 - $ref: "#/components/schemas/SVGRequestBase"
+                - $ref: "#/components/schemas/SVGParamsBase"
                 - type: object
                   required:
                       - input
                   properties:
                       input:
                           $ref: "#/components/schemas/SVGEditInput"
-                      svg_params:
-                          $ref: "#/components/schemas/SVGParams"
+                      canvas:
+                          $ref: "#/components/schemas/Canvas"
         SVGDocument:
             type: object
             required:
@@ -2043,24 +2057,6 @@ components:
             default: "1:1"
             example: "1:1"
         # Canvas Configuration
-        ViewBox:
-            type: object
-            description: ViewBox dimensions for the SVG coordinate system
-            properties:
-                width:
-                    type: integer
-                    description: ViewBox width
-                    example: 24
-                    minimum: 1
-                    maximum: 4096
-                    default: 24
-                height:
-                    type: integer
-                    description: ViewBox height
-                    example: 24
-                    minimum: 1
-                    maximum: 4096
-                    default: 24
         SafeZoneOverrides:
             type: object
             description: Optional overrides for specific sides of the safe zone
@@ -2114,16 +2110,49 @@ components:
         Canvas:
             type: object
             description: |
-                Controls the coordinate system and "Safe Zones" to prevent clipping/bad cropping.
-                NOTE: "mode" determines the default canvas if this is omitted.
+                Canvas settings for SVG coordinate system. Sizing is inferred from the source image.
+                Used for edit/animate/vectorize endpoints (safe-zone only).
             properties:
-                view_box:
-                    $ref: "#/components/schemas/ViewBox"
+                safe_zone:
+                    $ref: "#/components/schemas/SafeZone"
+        GenerateCanvas:
+            type: object
+            description: |
+                Canvas settings for SVG generation. Sizing is inferred from aspect_ratio
+                and optimized for the specific generation mode.
+                Used for /svg/generate endpoint.
+            properties:
                 aspect_ratio:
                     $ref: "#/components/schemas/AspectRatio"
                 safe_zone:
                     $ref: "#/components/schemas/SafeZone"
         # Color System
+        HexColor:
+            type: string
+            description: Hex color in `#RRGGBB` format
+            pattern: "^#[0-9A-Fa-f]{6}$"
+            example: "#12FBA2"
+        NamedColorValue:
+            type: object
+            description: A color with a semantic name (e.g., "background", "primary", "accent")
+            required:
+                - value
+                - name
+            properties:
+                value:
+                    $ref: "#/components/schemas/HexColor"
+                name:
+                    type: string
+                    description: Semantic label for the color (e.g., "background", "primary", "accent")
+                    example: background
+        ColorValue:
+            description: |
+                A color entry: either a plain hex string or an object with name and value.
+                - Plain hex: `"#FF5733"` (unnamed, part of general palette)
+                - Named: `{ "value": "#FFFFFF", "name": "background" }` (semantic color)
+            oneOf:
+                - $ref: "#/components/schemas/HexColor"
+                - $ref: "#/components/schemas/NamedColorValue"
         ColorAdherence:
             type: string
             description: |
@@ -2136,37 +2165,6 @@ components:
                 - tints_and_shades
                 - creative
             default: tints_and_shades
-        ColorRoles:
-            type: object
-            description: Semantic mapping of colors to specific roles
-            properties:
-                background:
-                    type: array
-                    description: Colors allowed for background elements
-                    items:
-                        type: string
-                    example: ["#FFFFFF"]
-                    x-go-type-skip-optional-pointer: true
-                primary:
-                    type: array
-                    description: Primary/main colors for key elements
-                    items:
-                        type: string
-                    example: ["#1A1A1A"]
-                    x-go-type-skip-optional-pointer: true
-                accent:
-                    type: array
-                    description: Accent colors for highlights and emphasis
-                    items:
-                        type: string
-                    example: ["#12FBA2"]
-                    x-go-type-skip-optional-pointer: true
-                metadata:
-                    type: array
-                    description: Arbitrary custom role colors
-                    items:
-                        type: string
-                    x-go-type-skip-optional-pointer: true
         Colors:
             type: object
             description: The color system configuration for SVG generation
@@ -2177,26 +2175,31 @@ components:
                     example: 4
                     minimum: 1
                     maximum: 256
-                    default: 4
-                use_gradients:
+                    default: 16
+                allow_gradients:
                     type: boolean
                     description: If true, allows <linearGradient> and <radialGradient> definitions
                     default: false
-                palette:
+                values:
                     type: array
-                    description: General list of allowed colors (hex codes)
+                    description: |
+                        List of colors to use. Supports both named and unnamed entries:
+                        - Named: `{ "value": "#FFFFFF", "name": "background" }` for semantic colors
+                        - Unnamed: `"#FF5733"` for general palette colors
                     items:
-                        type: string
-                    example: ["#12FBA2", "#1A1A1A", "#FFFFFF"]
+                        $ref: "#/components/schemas/ColorValue"
+                    example:
+                        - value: "#FFFFFF"
+                          name: background
+                        - value: "#1A1A1A"
+                          name: primary
+                        - value: "#12FBA2"
+                          name: accent
+                        - "#FF5733"
+                        - "#00BFFF"
                     x-go-type-skip-optional-pointer: true
-                roles:
-                    $ref: "#/components/schemas/ColorRoles"
                 adherence:
                     $ref: "#/components/schemas/ColorAdherence"
-                allow_opacity:
-                    type: boolean
-                    description: Whether to allow opacity/transparency variations
-                    default: true
         # Stroke Styling
         StrokeLineCap:
             type: string
@@ -2314,17 +2317,15 @@ components:
                     example: 256
                     minimum: 1
                     maximum: 4096
-        # Main SVGParams schema
-        SVGParams:
+        # SVG Params Base (shared across endpoints, without canvas)
+        SVGParamsBase:
             type: object
             description: |
-                SVG-specific generation parameters for controlling canvas, design, and styling.
-                These parameters give fine-grained control over the generated SVG output.
+                Base SVG generation parameters for controlling mode, design, and constraints.
+                Canvas is added per-endpoint with appropriate sizing options.
             properties:
                 mode:
                     $ref: "#/components/schemas/SVGMode"
-                canvas:
-                    $ref: "#/components/schemas/Canvas"
                 design:
                     $ref: "#/components/schemas/Design"
                 constraints:
@@ -2348,12 +2349,15 @@ components:
         AnimateSVGRequest:
             allOf:
                 - $ref: "#/components/schemas/SVGRequestBase"
+                - $ref: "#/components/schemas/SVGParamsBase"
                 - type: object
                   required:
                       - input
                   properties:
                       input:
                           $ref: "#/components/schemas/SVGAnimateInput"
+                      canvas:
+                          $ref: "#/components/schemas/Canvas"
                       duration:
                           type: integer
                           description: Animation duration in seconds
@@ -2372,8 +2376,6 @@ components:
                               - ease-in-out
                           default: ease
                           example: ease-in-out
-                      svg_params:
-                          $ref: "#/components/schemas/SVGParams"
         SVGVectorizeInput:
             type: object
             required:
@@ -2390,14 +2392,15 @@ components:
         VectorizeSVGRequest:
             allOf:
                 - $ref: "#/components/schemas/SVGRequestBase"
+                - $ref: "#/components/schemas/SVGParamsBase"
                 - type: object
                   required:
                       - input
                   properties:
                       input:
                           $ref: "#/components/schemas/SVGVectorizeInput"
-                      svg_params:
-                          $ref: "#/components/schemas/SVGParams"
+                      canvas:
+                          $ref: "#/components/schemas/Canvas"
                       simplify_if_needed:
                           type: boolean
                           description: |
@@ -2425,46 +2428,33 @@ components:
                     type: boolean
                     description: Whether the image is suitable for vectorization
                     example: true
-        CollectionSVGRequest:
+        CreateIconRequest:
             allOf:
-                - $ref: "#/components/schemas/SVGRequestBase"
+                - $ref: "#/components/schemas/CreateSVGRequest"
                 - type: object
                   required:
-                      - input
+                      - mode
                   properties:
-                      input:
-                          $ref: "#/components/schemas/SVGInput"
-                      svg_params:
-                          $ref: "#/components/schemas/SVGParams"
-        CollectionResponse:
-            type: object
-            required:
-                - created
-                - items
-            properties:
-                created:
-                    type: integer
-                    description: Unix timestamp of when the response was created
-                    example: 1704067200
-                items:
-                    type: array
-                    description: Array of generated SVG documents in the collection
-                    items:
-                        $ref: "#/components/schemas/SVGDocument"
-                usage:
-                    $ref: "#/components/schemas/Usage"
+                      mode:
+                          type: string
+                          const: icon
+                          description: Generation mode, always icon for icon requests
+                      canvas:
+                          $ref: "#/components/schemas/GenerateCanvas"
+                          description: Canvas configuration. Aspect ratio defaults to "1:1" for icons but can be overridden.
+            description: Request to create an icon SVG. Mode is enforced as icon, aspect ratio defaults to 1:1 but can be overridden.
         SVGStreamEvent:
             description: |
                 Streaming event for SVG operations (SSE format).
                 Events flow in up to three phases:
-                1. `*.reasoning` - Model thinking about design approach (generate/edit/animate only)
+                1. `*.reasoning` - Model thinking about design approach (create/edit/animate only)
                 2. `*.draft` - Streaming partial SVG chunks as generated
                 3. `*.content` - Final postprocessed, optimized SVG
             oneOf:
-                # Generate events (has reasoning)
-                - $ref: "#/components/schemas/SVGGenerateReasoningEvent"
-                - $ref: "#/components/schemas/SVGGenerateDraftEvent"
-                - $ref: "#/components/schemas/SVGGenerateContentEvent"
+                # Create events (has reasoning)
+                - $ref: "#/components/schemas/SVGCreateReasoningEvent"
+                - $ref: "#/components/schemas/SVGCreateDraftEvent"
+                - $ref: "#/components/schemas/SVGCreateContentEvent"
                 # Vectorize events (no reasoning - just tracing)
                 - $ref: "#/components/schemas/SVGVectorizeDraftEvent"
                 - $ref: "#/components/schemas/SVGVectorizeContentEvent"
@@ -2479,9 +2469,9 @@ components:
             discriminator:
                 propertyName: event
                 mapping:
-                    svg_generate.reasoning: "#/components/schemas/SVGGenerateReasoningEvent"
-                    svg_generate.draft: "#/components/schemas/SVGGenerateDraftEvent"
-                    svg_generate.content: "#/components/schemas/SVGGenerateContentEvent"
+                    svg_create.reasoning: "#/components/schemas/SVGCreateReasoningEvent"
+                    svg_create.draft: "#/components/schemas/SVGCreateDraftEvent"
+                    svg_create.content: "#/components/schemas/SVGCreateContentEvent"
                     svg_vectorize.draft: "#/components/schemas/SVGVectorizeDraftEvent"
                     svg_vectorize.content: "#/components/schemas/SVGVectorizeContentEvent"
                     svg_edit.reasoning: "#/components/schemas/SVGEditReasoningEvent"
@@ -2491,9 +2481,9 @@ components:
                     svg_animate.draft: "#/components/schemas/SVGAnimateDraftEvent"
                     svg_animate.content: "#/components/schemas/SVGAnimateContentEvent"
         # ============================================================================
-        # Generate Events (for /svg/generate - has reasoning)
+        # Create Events (for /v1/svg - has reasoning)
         # ============================================================================
-        SVGGenerateReasoningEvent:
+        SVGCreateReasoningEvent:
             type: object
             description: Model reasoning about SVG design approach.
             required:
@@ -2502,7 +2492,7 @@ components:
             properties:
                 event:
                     type: string
-                    const: svg_generate.reasoning
+                    const: svg_create.reasoning
                 data:
                     type: object
                     required:
@@ -2516,7 +2506,7 @@ components:
                         text:
                             type: string
                             description: Reasoning text about design decisions.
-        SVGGenerateDraftEvent:
+        SVGCreateDraftEvent:
             type: object
             description: Streaming partial SVG chunks as generated by the model.
             required:
@@ -2525,7 +2515,7 @@ components:
             properties:
                 event:
                     type: string
-                    const: svg_generate.draft
+                    const: svg_create.draft
                 data:
                     type: object
                     required:
@@ -2539,7 +2529,7 @@ components:
                         svg:
                             type: string
                             description: Partial SVG markup during streaming.
-        SVGGenerateContentEvent:
+        SVGCreateContentEvent:
             type: object
             description: Final postprocessed, optimized SVG.
             required:
@@ -2548,7 +2538,7 @@ components:
             properties:
                 event:
                     type: string
-                    const: svg_generate.content
+                    const: svg_create.content
                 data:
                     type: object
                     required:
@@ -2566,7 +2556,7 @@ components:
                             $ref: "#/components/schemas/Usage"
                             description: Token usage statistics.
         # ============================================================================
-        # Vectorize Events (for /svg/vectorize - NO reasoning, just tracing)
+        # Vectorize Events (for /v1/svg/vectorizations - NO reasoning, just tracing)
         # ============================================================================
         SVGVectorizeDraftEvent:
             type: object
@@ -2618,7 +2608,7 @@ components:
                             $ref: "#/components/schemas/Usage"
                             description: Token usage statistics.
         # ============================================================================
-        # Edit Events (for /svg/edit - has reasoning)
+        # Edit Events (for /v1/svg/edits - has reasoning)
         # ============================================================================
         SVGEditReasoningEvent:
             type: object
@@ -2693,7 +2683,7 @@ components:
                             $ref: "#/components/schemas/Usage"
                             description: Token usage statistics.
         # ============================================================================
-        # Animate Events (for /svg/animate - has reasoning)
+        # Animate Events (for /v1/svg/animations - has reasoning)
         # ============================================================================
         SVGAnimateReasoningEvent:
             type: object
