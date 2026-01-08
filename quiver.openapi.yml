@@ -24,8 +24,8 @@ tags:
       description: Operations for creating and transforming SVG graphics, including creating, editing and animating.
 paths:
     /v1/chat/completions:
-        x-hidden: true
         post:
+            x-hidden: true
             x-speakeasy-ignore: true
             operationId: createChatCompletion
             tags:
