@@ -500,7 +500,7 @@ paths:
             operationId: createSVGVectorization
             tags:
                 - Images
-            summary: Vectorize image to SVG
+            summary: Vectorize images to SVGs
             description: |
                 Converts a raster image (PNG, JPEG, WebP) into an SVG graphic.
                 Requires exactly one input image. Supports streaming for real-time
