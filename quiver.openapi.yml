@@ -20,7 +20,7 @@ tags:
       description: Given a list of messages comprising a conversation, the model will return a response.
     - name: Models
       description: Operations for listing and retrieving available models
-    - name: SVG
+    - name: SVGs
       description: Operations for creating and transforming SVG graphics, including creating, editing and animating.
 paths:
     /v1/chat/completions:
