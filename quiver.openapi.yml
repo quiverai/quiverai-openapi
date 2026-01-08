@@ -1848,7 +1848,10 @@ components:
                     example: Generate an icon of a unicorn
                 references:
                     type: array
-                    description: Optional reference images to guide style/composition
+                    maxItems: 4
+                    description: |
+                        Optional reference images to guide style/composition.
+                        Maximum of 4 images.
                     items:
                         $ref: "#/components/schemas/InputReference"
         SVGSource:
