@@ -315,8 +315,6 @@ paths:
                                         prompt: Simplify the design and use fewer paths
                                         source:
                                             svg_url: https://example.com/source.svg
-                                    constraints:
-                                        max_paths: 64
                             streaming:
                                 summary: Streaming edit with style modifications
                                 value:
@@ -2204,38 +2202,13 @@ components:
                 - isometric
                 - hand_drawn
             example: outline
-        # Constraints
-        Constraints:
-            type: object
-            description: Limits and constraints for the generated SVG output
-            properties:
-                max_paths:
-                    type: integer
-                    description: Maximum number of path elements in the SVG
-                    example: 64
-                    minimum: 1
-                    maximum: 1024
-                max_elements:
-                    type: integer
-                    description: Maximum total number of SVG elements
-                    example: 128
-                    minimum: 1
-                    maximum: 2048
-                max_points_per_path:
-                    type: integer
-                    description: Maximum number of points/commands per path
-                    example: 256
-                    minimum: 1
-                    maximum: 4096
         # SVG Params Base (shared across endpoints, without canvas)
         SVGParamsBase:
             type: object
             description: |
-                Base SVG generation parameters for controlling constraints.
+                Base SVG generation parameters.
                 Canvas is added per-endpoint with appropriate sizing options.
-            properties:
-                constraints:
-                    $ref: "#/components/schemas/Constraints"
+            properties: {}
         SVGAnimateInput:
             type: object
             required:
