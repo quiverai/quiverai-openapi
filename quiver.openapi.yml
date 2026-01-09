@@ -1949,7 +1949,7 @@ components:
                       input:
                           $ref: "#/components/schemas/SVGInput"
                       canvas:
-                          $ref: "#/components/schemas/GenerateCanvas"
+                          $ref: "#/components/schemas/AspectRatio"
         EditSVGRequest:
             allOf:
                 - $ref: "#/components/schemas/SVGRequestBase"
@@ -1959,8 +1959,6 @@ components:
                   properties:
                       input:
                           $ref: "#/components/schemas/SVGEditInput"
-                      canvas:
-                          $ref: "#/components/schemas/Canvas"
         SVGDocument:
             type: object
             required:
@@ -2023,76 +2021,6 @@ components:
                 - "21:9"
             default: "1:1"
             example: "1:1"
-        # Canvas Configuration
-        SafeZoneOverrides:
-            type: object
-            description: Optional overrides for specific sides of the safe zone
-            properties:
-                top:
-                    type: number
-                    description: Override value for top margin
-                    minimum: 0
-                    maximum: 1
-                bottom:
-                    type: number
-                    description: Override value for bottom margin
-                    minimum: 0
-                    maximum: 1
-                left:
-                    type: number
-                    description: Override value for left margin
-                    minimum: 0
-                    maximum: 1
-                right:
-                    type: number
-                    description: Override value for right margin
-                    minimum: 0
-                    maximum: 1
-        SafeZoneMode:
-            type: string
-            description: |
-                How safe zone values are interpreted.
-                - `relative`: Values are 0-1 representing percentage of viewport
-                - `absolute`: Values are in SVG coordinate units
-            enum:
-                - relative
-                - absolute
-            default: relative
-        SafeZone:
-            type: object
-            description: |
-                The "Safe Zone" is the guaranteed empty margin between content and edge.
-                Prevents clipping and bad cropping.
-            properties:
-                mode:
-                    $ref: "#/components/schemas/SafeZoneMode"
-                value:
-                    type: number
-                    description: Padding value (interpretation depends on mode)
-                    example: 0.1
-                    minimum: 0
-                    default: 0.1
-                overrides:
-                    $ref: "#/components/schemas/SafeZoneOverrides"
-        Canvas:
-            type: object
-            description: |
-                Canvas settings for SVG coordinate system. Sizing is inferred from the source image.
-                Used for edit/animate/vectorize endpoints (safe-zone only).
-            properties:
-                safe_zone:
-                    $ref: "#/components/schemas/SafeZone"
-        GenerateCanvas:
-            type: object
-            description: |
-                Canvas settings for SVG generation. Sizing is inferred from aspect_ratio
-                and optimized for the specific generation mode.
-                Used for /svg/generate endpoint.
-            properties:
-                aspect_ratio:
-                    $ref: "#/components/schemas/AspectRatio"
-                safe_zone:
-                    $ref: "#/components/schemas/SafeZone"
         # Color System
         HexColor:
             type: string
@@ -2250,7 +2178,7 @@ components:
                       input:
                           $ref: "#/components/schemas/SVGAnimateInput"
                       canvas:
-                          $ref: "#/components/schemas/Canvas"
+                          $ref: "#/components/schemas/AspectRatio"
                       duration:
                           type: integer
                           description: Animation duration in seconds
@@ -2292,7 +2220,7 @@ components:
                       input:
                           $ref: "#/components/schemas/SVGVectorizeInput"
                       canvas:
-                          $ref: "#/components/schemas/Canvas"
+                          $ref: "#/components/schemas/AspectRatio"
                       simplify_if_needed:
                           type: boolean
                           description: |
@@ -2326,7 +2254,7 @@ components:
                 - type: object
                   properties:
                       canvas:
-                          $ref: "#/components/schemas/GenerateCanvas"
+                          $ref: "#/components/schemas/AspectRatio"
                           description: Canvas configuration. Aspect ratio defaults to "1:1" for icons but can be overridden.
             description: Request to create an icon SVG. Aspect ratio defaults to 1:1 but can be overridden.
         SVGStreamEvent:
