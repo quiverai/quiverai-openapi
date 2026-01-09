@@ -173,7 +173,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-    /v1/svgs:
+    /v1/svgs/generations:
         post:
             operationId: createSVG
             tags:
@@ -664,7 +664,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-    /v1/svgs/icons:
+    /v1/svgs/icons/generations:
         post:
             operationId: createIcon
             tags:
