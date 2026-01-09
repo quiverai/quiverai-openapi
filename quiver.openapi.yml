@@ -2098,6 +2098,15 @@ components:
                               simplified before vectorization to improve results.
                           default: false
                           example: true
+                      auto_crop:
+                          type: boolean
+                          description: |
+                              If true, the image is automatically cropped to the subject before vectorization.
+                              This can improve results for images with large amounts of empty space or
+                              distracting backgrounds. We generally recommend users to crop their images
+                              manually for best results.
+                          default: false
+                          example: true
         VectorizabilityCheckRequest:
             type: object
             required:
