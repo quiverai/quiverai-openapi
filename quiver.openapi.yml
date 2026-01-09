@@ -1918,7 +1918,6 @@ components:
         CreateSVGRequest:
             allOf:
                 - $ref: "#/components/schemas/SVGRequestBase"
-                - $ref: "#/components/schemas/SVGParamsBase"
                 - type: object
                   required:
                       - input
@@ -1930,7 +1929,6 @@ components:
         EditSVGRequest:
             allOf:
                 - $ref: "#/components/schemas/SVGRequestBase"
-                - $ref: "#/components/schemas/SVGParamsBase"
                 - type: object
                   required:
                       - input
@@ -2202,13 +2200,6 @@ components:
                 - isometric
                 - hand_drawn
             example: outline
-        # SVG Params Base (shared across endpoints, without canvas)
-        SVGParamsBase:
-            type: object
-            description: |
-                Base SVG generation parameters.
-                Canvas is added per-endpoint with appropriate sizing options.
-            properties: {}
         SVGAnimateInput:
             type: object
             required:
@@ -2228,7 +2219,6 @@ components:
         AnimateSVGRequest:
             allOf:
                 - $ref: "#/components/schemas/SVGRequestBase"
-                - $ref: "#/components/schemas/SVGParamsBase"
                 - type: object
                   required:
                       - input
@@ -2271,7 +2261,6 @@ components:
         VectorizeSVGRequest:
             allOf:
                 - $ref: "#/components/schemas/SVGRequestBase"
-                - $ref: "#/components/schemas/SVGParamsBase"
                 - type: object
                   required:
                       - input
