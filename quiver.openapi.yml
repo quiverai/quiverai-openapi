@@ -504,7 +504,6 @@ paths:
                                     simplify_if_needed: true
                                     image:
                                         url: https://example.com/photo.jpg
-                                    instructions: Simplify to minimal geometric shapes
             responses:
                 "200":
                     description: OK
@@ -2091,10 +2090,6 @@ components:
                       image:
                           $ref: "#/components/schemas/ImageInputReference"
                           description: The source image to vectorize (exactly one required)
-                      instructions:
-                          type: string
-                          description: Optional instructions for vectorization style
-                          example: Simplify to minimal geometric shapes
                       aspect_ratio:
                           $ref: "#/components/schemas/AspectRatio"
                       simplify_if_needed:
