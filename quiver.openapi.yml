@@ -220,22 +220,6 @@ paths:
                                             value: 0.1
                                             overrides:
                                                 bottom: 0.15
-                                    design:
-                                        style_preset: outline
-                                        complexity: 2
-                                        include_background: false
-                                        stroke_width: 1.5
-                                        colors:
-                                            max_colors: 4
-                                            allow_gradients: false
-                                            values:
-                                                - value: "#FFFFFF"
-                                                  name: background
-                                                - value: "#1A1A1A"
-                                                  name: primary
-                                                - value: "#12FBA2"
-                                                  name: accent
-                                            adherence: tints_and_shades
             responses:
                 "200":
                     description: OK
@@ -343,14 +327,6 @@ paths:
                                         prompt: Convert to a duotone style
                                         source:
                                             svg: <svg xmlns="http://www.w3.org/2000/svg">...</svg>
-                                    design:
-                                        style_preset: duotone
-                                        colors:
-                                            values:
-                                                - value: "#000000"
-                                                  name: primary
-                                                - value: "#FF6B6B"
-                                                  name: accent
             responses:
                 "200":
                     description: OK
@@ -537,11 +513,6 @@ paths:
                                         safe_zone:
                                             mode: relative
                                             value: 0.1
-                                    design:
-                                        style_preset: flat
-                                        complexity: 2
-                                        colors:
-                                            max_colors: 4
             responses:
                 "200":
                     description: OK
@@ -694,12 +665,6 @@ paths:
                                         prompt: A sleek, modern unicorn icon
                                         references:
                                             - url: https://example.com/style-reference.png
-                                    design:
-                                        style_preset: outline
-                                        colors:
-                                            values:
-                                                - value: "#1A1A1A"
-                                                  name: primary
             responses:
                 "200":
                     description: OK
@@ -2239,43 +2204,6 @@ components:
                 - isometric
                 - hand_drawn
             example: outline
-        # Design Configuration
-        Design:
-            type: object
-            description: Controls how the model applies aesthetics to the generated SVG
-            properties:
-                style_preset:
-                    $ref: "#/components/schemas/StylePreset"
-                complexity:
-                    type: integer
-                    description: |
-                        Detail level from 1-4:
-                        - 1: Minimal, simple shapes
-                        - 2: Standard, balanced detail
-                        - 3: Detailed, more intricate
-                        - 4: Highly detailed, maximum complexity
-                    minimum: 1
-                    maximum: 4
-                    default: 2
-                    example: 2
-                include_background:
-                    type: boolean
-                    description: If true, generates a filled <rect> background layer
-                    default: false
-                stroke_width:
-                    type: number
-                    description: Stroke width relative to the viewBox size
-                    example: 1.5
-                    minimum: 0
-                    default: 1.5
-                linecap:
-                    $ref: "#/components/schemas/StrokeLineCap"
-                linejoin:
-                    $ref: "#/components/schemas/StrokeLineJoin"
-                fill_rule:
-                    $ref: "#/components/schemas/FillRule"
-                colors:
-                    $ref: "#/components/schemas/Colors"
         # Constraints
         Constraints:
             type: object
@@ -2303,11 +2231,9 @@ components:
         SVGParamsBase:
             type: object
             description: |
-                Base SVG generation parameters for controlling design and constraints.
+                Base SVG generation parameters for controlling constraints.
                 Canvas is added per-endpoint with appropriate sizing options.
             properties:
-                design:
-                    $ref: "#/components/schemas/Design"
                 constraints:
                     $ref: "#/components/schemas/Constraints"
         SVGAnimateInput:
