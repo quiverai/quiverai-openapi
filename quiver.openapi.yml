@@ -79,32 +79,16 @@ paths:
                                       context_length: 128000
                                       max_output_length: 16384
                                       pricing:
-                                          prompt: "0.000001"
-                                          completion: "0.000002"
-                                          image: "0.00001"
+                                        prompt: "0.000001"
+                                        completion: "0.000002"
+                                        image: "0.00001"
                                       supported_operations:
-                                          - svg_generate
-                                          - svg_edit
-                                          - svg_animate
-                                          - chat_completions
-                                      svg_capabilities:
-                                          supported_styles:
-                                              [
-                                                  "flat",
-                                                  "outline",
-                                                  "duotone",
-                                                  "gradient",
-                                              ]
-                                          max_complexity: 4
-                                          recommended_viewbox_sizes:
-                                              [24, 48, 64, 128, 256, 512]
-                                      supported_sampling_parameters:
-                                          [
-                                              "temperature",
-                                              "top_p",
-                                              "stop",
-                                              "seed",
-                                          ]
+                                        - svg_generate
+                                        - svg_edit
+                                        - svg_animate
+                                        - svg_vectorize
+                                        - chat_completions
+                                      supported_sampling_parameters: ["temperature", "top_p", "stop", "frequency_penalty", "presence_penalty", "seed"]
     /v1/models/{model}:
         get:
             operationId: retrieveModel
@@ -121,7 +105,7 @@ paths:
                   name: model
                   required: true
                   schema:
-                      $ref: "#/components/schemas/ModelIdsShared"
+                    $ref: "#/components/schemas/ModelIdsShared"
                   description: The ID of the model to retrieve
             responses:
                 "200":
@@ -149,20 +133,9 @@ paths:
                                     - svg_generate
                                     - svg_edit
                                     - svg_animate
+                                    - svg_vectorize
                                     - chat_completions
-                                svg_capabilities:
-                                    supported_styles:
-                                        [
-                                            "flat",
-                                            "outline",
-                                            "duotone",
-                                            "gradient",
-                                        ]
-                                    max_complexity: 4
-                                    recommended_viewbox_sizes:
-                                        [24, 48, 64, 128, 256, 512]
-                                supported_sampling_parameters:
-                                    ["temperature", "top_p", "stop", "seed"]
+                                supported_sampling_parameters: ["temperature", "top_p", "stop", "frequency_penalty", "presence_penalty", "seed"]
                 "404":
                     description: Model not found
                     content:
@@ -672,10 +645,10 @@ components:
                           title: Text content
                         - type: array
                           description: >-
-                              An array of content parts with a defined type. Can be one or more of type `text`, or exactly one of type `refusal`.
+                            An array of content parts with a defined type. Can be one or more of type `text`, or exactly one of type `refusal`.
                           title: Array of content parts
                           items:
-                              $ref: "#/components/schemas/ChatCompletionRequestAssistantMessageContentPart"
+                            $ref: "#/components/schemas/ChatCompletionRequestAssistantMessageContentPart"
                           minItems: 1
                     nullable: true
                 refusal:
@@ -793,10 +766,10 @@ components:
                           title: Text content
                         - type: array
                           description: >-
-                              An array of content parts with a defined type. For system messages, only type `text` is supported.
+                            An array of content parts with a defined type. For system messages, only type `text` is supported.
                           title: Array of content parts
                           items:
-                              $ref: "#/components/schemas/ChatCompletionRequestSystemMessageContentPart"
+                            $ref: "#/components/schemas/ChatCompletionRequestSystemMessageContentPart"
                           minItems: 1
                 role:
                     $ref: "#/components/schemas/ChatCompletionRole"
@@ -827,10 +800,10 @@ components:
                           title: Text content
                         - type: array
                           description: >-
-                              An array of content parts with a defined type. Can contain text or image inputs.
+                            An array of content parts with a defined type. Can contain text or image inputs.
                           title: Array of content parts
                           items:
-                              $ref: "#/components/schemas/ChatCompletionRequestUserMessageContentPart"
+                            $ref: "#/components/schemas/ChatCompletionRequestUserMessageContentPart"
                           minItems: 1
                 role:
                     $ref: "#/components/schemas/ChatCompletionRole"
@@ -875,30 +848,30 @@ components:
         ChatCompletionStreamOptions:
             anyOf:
                 - description: |
-                      Options for streaming response. Only set this when you set `stream: true`.
+                    Options for streaming response. Only set this when you set `stream: true`.
                   type: object
                   properties:
-                      include_usage:
-                          type: boolean
-                          description: |
-                              If set, an additional chunk will be streamed before the `data: [DONE]`
-                              message. The `usage` field on this chunk shows the token usage statistics
-                              for the entire request, and the `choices` field will always be an empty
-                              array.
+                    include_usage:
+                        type: boolean
+                        description: |
+                            If set, an additional chunk will be streamed before the `data: [DONE]`
+                            message. The `usage` field on this chunk shows the token usage statistics
+                            for the entire request, and the `choices` field will always be an empty
+                            array.
 
-                              All other chunks will also include a `usage` field, but with a null
-                              value. **NOTE:** If the stream is interrupted, you may not receive the
-                              final usage chunk which contains the total token usage for the request.
-                      include_obfuscation:
-                          type: boolean
-                          description: |
-                              When true, stream obfuscation will be enabled. Stream obfuscation adds
-                              random characters to an `obfuscation` field on streaming delta events to
-                              normalize payload sizes as a mitigation to certain side-channel attacks.
-                              These obfuscation fields are included by default, but add a small amount
-                              of overhead to the data stream. You can set `include_obfuscation` to
-                              false to optimize for bandwidth if you trust the network links between
-                              your application and the OpenAI API.
+                            All other chunks will also include a `usage` field, but with a null
+                            value. **NOTE:** If the stream is interrupted, you may not receive the
+                            final usage chunk which contains the total token usage for the request.
+                    include_obfuscation:
+                        type: boolean
+                        description: |
+                            When true, stream obfuscation will be enabled. Stream obfuscation adds
+                            random characters to an `obfuscation` field on streaming delta events to
+                            normalize payload sizes as a mitigation to certain side-channel attacks.
+                            These obfuscation fields are included by default, but add a small amount
+                            of overhead to the data stream. You can set `include_obfuscation` to
+                            false to optimize for bandwidth if you trust the network links between
+                            your application and the OpenAI API.
             nullable: true
             x-omitempty: true
         ChatCompletionStreamResponseDelta:
@@ -1044,106 +1017,106 @@ components:
                 - $ref: "#/components/schemas/CreateModelResponseProperties"
                 - type: object
                   properties:
-                      messages:
-                          description: >
-                              A list of messages comprising the conversation so far.
+                    messages:
+                        description: >
+                            A list of messages comprising the conversation so far.
 
-                          type: array
-                          minItems: 1
-                          items:
-                              $ref: "#/components/schemas/ChatCompletionRequestMessage"
-                      model:
-                          description: >
-                              Model ID used to generate the response.
+                        type: array
+                        minItems: 1
+                        items:
+                            $ref: "#/components/schemas/ChatCompletionRequestMessage"
+                    model:
+                        description: >
+                            Model ID used to generate the response.
 
-                          $ref: "#/components/schemas/ModelIdsShared"
-                      reasoning_effort:
-                          $ref: "#/components/schemas/ReasoningEffort"
-                      frequency_penalty:
-                          type: number
-                          default: 0
-                          minimum: -2
-                          maximum: 2
-                          nullable: true
-                          x-omitempty: true
-                          description: |
-                              Number between -2.0 and 2.0. Positive values penalize new tokens based on
-                              their existing frequency in the text so far, decreasing the model's
-                              likelihood to repeat the same line verbatim.
-                      presence_penalty:
-                          type: number
-                          default: 0
-                          minimum: -2
-                          maximum: 2
-                          x-omitempty: true
-                          nullable: true
-                          description: |
-                              Number between -2.0 and 2.0. Positive values penalize new tokens based on
-                              whether they appear in the text so far, increasing the model's likelihood
-                              to talk about new topics.
-                      top_logprobs:
-                          x-omitempty: true
-                          description: |
-                              An integer between 0 and 20 specifying the number of most likely tokens to
-                              return at each token position, each with an associated log probability.
-                              `logprobs` must be set to `true` if this parameter is used.
-                          type: integer
-                          minimum: 0
-                          maximum: 20
-                          nullable: true
-                      stream:
-                          description: >
-                              If set to true, the model response data will be streamed to the client as it is generated using server-sent events.
+                        $ref: "#/components/schemas/ModelIdsShared"
+                    reasoning_effort:
+                        $ref: "#/components/schemas/ReasoningEffort"
+                    frequency_penalty:
+                        type: number
+                        default: 0
+                        minimum: -2
+                        maximum: 2
+                        nullable: true
+                        x-omitempty: true
+                        description: |
+                            Number between -2.0 and 2.0. Positive values penalize new tokens based on
+                            their existing frequency in the text so far, decreasing the model's
+                            likelihood to repeat the same line verbatim.
+                    presence_penalty:
+                        type: number
+                        default: 0
+                        minimum: -2
+                        maximum: 2
+                        x-omitempty: true
+                        nullable: true
+                        description: |
+                            Number between -2.0 and 2.0. Positive values penalize new tokens based on
+                            whether they appear in the text so far, increasing the model's likelihood
+                            to talk about new topics.
+                    top_logprobs:
+                        x-omitempty: true
+                        description: |
+                            An integer between 0 and 20 specifying the number of most likely tokens to
+                            return at each token position, each with an associated log probability.
+                            `logprobs` must be set to `true` if this parameter is used.
+                        type: integer
+                        minimum: 0
+                        maximum: 20
+                        nullable: true
+                    stream:
+                        description: >
+                            If set to true, the model response data will be streamed to the client as it is generated using server-sent events.
 
-                          type: boolean
-                          default: false
-                          nullable: true
-                          x-go-type-skip-optional-pointer: true
-                      stop:
-                          $ref: "#/components/schemas/StopConfiguration"
-                      logprobs:
-                          x-omitempty: true
-                          description: |
-                              Whether to return log probabilities of the output tokens or not. If true,
-                              returns the log probabilities of each output token returned in the
-                              `content` of `message`.
-                          type: boolean
-                          default: false
-                          nullable: true
-                      max_tokens:
-                          description: |
-                              The maximum number of tokens that can be generated in the
-                              chat completion. This value can be used to control costs for text generated via API.
+                        type: boolean
+                        default: false
+                        nullable: true
+                        x-go-type-skip-optional-pointer: true
+                    stop:
+                        $ref: "#/components/schemas/StopConfiguration"
+                    logprobs:
+                        x-omitempty: true
+                        description: |
+                            Whether to return log probabilities of the output tokens or not. If true,
+                            returns the log probabilities of each output token returned in the
+                            `content` of `message`.
+                        type: boolean
+                        default: false
+                        nullable: true
+                    max_tokens:
+                        description: |
+                            The maximum number of tokens that can be generated in the
+                            chat completion. This value can be used to control costs for text generated via API.
 
-                              This value is now deprecated in favor of `max_completion_tokens`.
-                          type: integer
-                          nullable: true
-                          x-omitempty: true
-                          deprecated: true
-                      max_completion_tokens:
-                          description: |
-                              An upper bound for the number of tokens that can be generated for a completion,
-                              including visible output tokens and reasoning tokens.
-                          type: integer
-                          nullable: true
-                          x-omitempty: true
-                      seed:
-                          type: integer
-                          nullable: true
-                          x-omitempty: true
-                          deprecated: true
-                          description: >
-                              This feature is in Beta.
+                            This value is now deprecated in favor of `max_completion_tokens`.
+                        type: integer
+                        nullable: true
+                        x-omitempty: true
+                        deprecated: true
+                    max_completion_tokens:
+                        description: |
+                            An upper bound for the number of tokens that can be generated for a completion,
+                            including visible output tokens and reasoning tokens.
+                        type: integer
+                        nullable: true
+                        x-omitempty: true
+                    seed:
+                        type: integer
+                        nullable: true
+                        x-omitempty: true
+                        deprecated: true
+                        description: >
+                            This feature is in Beta.
 
-                              If specified, our system will make a best effort to sample deterministically, such that repeated requests with the same `seed` and parameters should return the same result.
+                            If specified, our system will make a best effort to sample deterministically, such that repeated requests with the same `seed` and parameters should return the same result.
 
-                              Determinism is not guaranteed.
+                            Determinism is not guaranteed.
 
-                      stream_options:
-                          $ref: "#/components/schemas/ChatCompletionStreamOptions"
+                    stream_options:
+                        $ref: "#/components/schemas/ChatCompletionStreamOptions"
                   required:
-                      - model
-                      - messages
+                    - model
+                    - messages
         CreateChatCompletionResponse:
             type: object
             description: Represents a chat completion response returned by model, based on the provided input.
@@ -1306,13 +1279,13 @@ components:
                 - $ref: "#/components/schemas/ModelResponseProperties"
                 - type: object
                   properties:
-                      top_logprobs:
-                          description: |
-                              An integer between 0 and 20 specifying the number of most likely tokens to
-                              return at each token position, each with an associated log probability.
-                          type: integer
-                          minimum: 0
-                          maximum: 20
+                    top_logprobs:
+                        description: |
+                            An integer between 0 and 20 specifying the number of most likely tokens to
+                            return at each token position, each with an associated log probability.
+                        type: integer
+                        minimum: 0
+                        maximum: 20
         ModelIdsShared:
             type: string
             enum:
@@ -1391,8 +1364,8 @@ components:
                   minItems: 1
                   maxItems: 4
                   items:
-                      type: string
-                      example: '["\n"]'
+                    type: string
+                    example: '["\n"]'
         # SVG and Model Schemas
         Error:
             type: object
@@ -1526,21 +1499,13 @@ components:
                     description: API operations supported by this model.
                     items:
                         $ref: "#/components/schemas/SupportedOperation"
-                    example:
-                        [
-                            "svg_generate",
-                            "svg_edit",
-                            "svg_animate",
-                            "chat_completions",
-                        ]
-                svg_capabilities:
-                    $ref: "#/components/schemas/SVGCapabilities"
+                    example: ["svg_generate", "svg_edit", "svg_animate", "svg_vectorize", "chat_completions"]
                 supported_sampling_parameters:
                     type: array
                     description: Sampling parameters supported by the model.
                     items:
                         $ref: "#/components/schemas/SamplingParameter"
-                    example: ["temperature", "top_p", "stop", "seed"]
+                    example: ["temperature", "top_p", "stop", "frequency_penalty", "presence_penalty", "seed"]
         Modality:
             type: string
             description: Input/output modality type.
@@ -1559,36 +1524,6 @@ components:
                 - svg_vectorize
                 - chat_completions
             example: svg_generate
-        SVGCapabilities:
-            type: object
-            description: SVG-specific capabilities and recommendations for the model.
-            properties:
-                supported_styles:
-                    type: array
-                    description: Style presets the model supports.
-                    items:
-                        $ref: "#/components/schemas/StylePreset"
-                    example:
-                        [
-                            "flat",
-                            "outline",
-                            "duotone",
-                            "gradient",
-                            "isometric",
-                            "hand_drawn",
-                        ]
-                max_complexity:
-                    type: integer
-                    description: Maximum complexity level (1-4) the model can handle well.
-                    minimum: 1
-                    maximum: 4
-                    example: 4
-                recommended_viewbox_sizes:
-                    type: array
-                    description: Recommended viewBox sizes for optimal output quality.
-                    items:
-                        type: integer
-                    example: [24, 48, 64, 128, 256, 512]
         SamplingParameter:
             type: string
             description: Supported sampling parameter.
@@ -1751,26 +1686,26 @@ components:
                 - $ref: "#/components/schemas/SVGRequestBase"
                 - type: object
                   required:
-                      - prompt
+                    - prompt
                   properties:
-                      prompt:
-                          type: string
-                          description: The main text prompt describing the desired SVG
-                          example: Generate an icon of a unicorn
-                      instructions:
-                          type: string
-                          description: Additional instructions for the model
-                          example: Create a minimal, modern icon
-                      references:
-                          type: array
-                          maxItems: 4
-                          description: |
-                              Optional reference images to guide style/composition.
-                              Maximum of 4 images.
-                          items:
-                              $ref: "#/components/schemas/ImageInputReference"
-                      aspect_ratio:
-                          $ref: "#/components/schemas/AspectRatio"
+                    prompt:
+                        type: string
+                        description: The main text prompt describing the desired SVG
+                        example: Generate an icon of a unicorn
+                    instructions:
+                        type: string
+                        description: Additional instructions for the model
+                        example: Create a minimal, modern icon
+                    references:
+                        type: array
+                        maxItems: 4
+                        description: |
+                            Optional reference images to guide style/composition.
+                            Maximum of 4 images.
+                        items:
+                            $ref: "#/components/schemas/ImageInputReference"
+                    aspect_ratio:
+                        $ref: "#/components/schemas/AspectRatio"
         EditSVGRequest:
             type: object
             description: Not Implemented
@@ -1836,25 +1771,6 @@ components:
                 - "21:9"
             default: "1:1"
             example: "1:1"
-        # Style Preset
-        StylePreset:
-            type: string
-            description: |
-                Predefined style to apply to the generated SVG.
-                - `flat`: Solid fills, no gradients or shadows
-                - `outline`: Stroke-based with minimal or no fills
-                - `duotone`: Two-color design style
-                - `gradient`: Uses gradient fills
-                - `isometric`: 3D isometric projection style
-                - `hand_drawn`: Organic, sketch-like appearance
-            enum:
-                - flat
-                - outline
-                - duotone
-                - gradient
-                - isometric
-                - hand_drawn
-            example: outline
         AnimateSVGRequest:
             type: object
             description: Not Implemented
@@ -1863,28 +1779,28 @@ components:
                 - $ref: "#/components/schemas/SVGRequestBase"
                 - type: object
                   required:
-                      - image
+                    - image
                   properties:
-                      image:
-                          $ref: "#/components/schemas/ImageInputReference"
-                          description: The source image to vectorize (exactly one required)
-                      simplify_if_needed:
-                          type: boolean
-                          description: |
-                              If true, the image is analyzed for vectorizability. Images deemed
-                              unsuitable (e.g., photos with complex textures) are automatically
-                              simplified before vectorization to improve results.
-                          default: false
-                          example: true
-                      auto_crop:
-                          type: boolean
-                          description: |
-                              If true, the image is automatically cropped to the subject before vectorization.
-                              This can improve results for images with large amounts of empty space or
-                              distracting backgrounds. We generally recommend users to crop their images
-                              manually for best results.
-                          default: false
-                          example: true
+                    image:
+                        $ref: "#/components/schemas/ImageInputReference"
+                        description: The source image to vectorize (exactly one required)
+                    simplify_if_needed:
+                        type: boolean
+                        description: |
+                            If true, the image is analyzed for vectorizability. Images deemed
+                            unsuitable (e.g., photos with complex textures) are automatically
+                            simplified before vectorization to improve results.
+                        default: false
+                        example: true
+                    auto_crop:
+                        type: boolean
+                        description: |
+                            If true, the image is automatically cropped to the subject before vectorization.
+                            This can improve results for images with large amounts of empty space or
+                            distracting backgrounds. We generally recommend users to crop their images
+                            manually for best results.
+                        default: false
+                        example: true
         VectorizabilityCheckRequest:
             type: object
             required:
