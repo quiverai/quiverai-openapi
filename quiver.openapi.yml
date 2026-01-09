@@ -88,8 +88,6 @@ paths:
                                           - svg_animate
                                           - chat_completions
                                       svg_capabilities:
-                                          supported_modes:
-                                              ["icon", "illustration", "logo"]
                                           supported_styles:
                                               [
                                                   "flat",
@@ -153,8 +151,6 @@ paths:
                                     - svg_animate
                                     - chat_completions
                                 svg_capabilities:
-                                    supported_modes:
-                                        ["icon", "illustration", "logo"]
                                     supported_styles:
                                         [
                                             "flat",
@@ -217,7 +213,6 @@ paths:
                                         prompt: Generate an icon of a unicorn
                                         references:
                                             - url: https://example.com/uploads/source1.png
-                                    mode: icon
                                     canvas:
                                         aspect_ratio: "1:1"
                                         safe_zone:
@@ -538,7 +533,6 @@ paths:
                                         image:
                                             url: https://example.com/photo.jpg
                                         instructions: Simplify to minimal geometric shapes
-                                    mode: icon
                                     canvas:
                                         safe_zone:
                                             mode: relative
@@ -1688,12 +1682,6 @@ components:
             type: object
             description: SVG-specific capabilities and recommendations for the model.
             properties:
-                supported_modes:
-                    type: array
-                    description: SVG generation modes the model excels at.
-                    items:
-                        $ref: "#/components/schemas/SVGMode"
-                    example: ["icon", "illustration", "logo"]
                 supported_styles:
                     type: array
                     description: Style presets the model supports.
@@ -2026,20 +2014,6 @@ components:
                         $ref: "#/components/schemas/SVGDocument"
                 usage:
                     $ref: "#/components/schemas/Usage"
-        # SVG Generation Mode
-        SVGMode:
-            type: string
-            description: |
-                The generation mode optimized for different use cases.
-                - `icon`: Optimized for small sizes, usually square, distinct shapes
-                - `illustration`: Optimized for scenes, larger viewports, complex details
-                - `logo`: Optimized for uniqueness, strong silhouettes, text-compatible
-            enum:
-                - icon
-                - illustration
-                - logo
-            default: icon
-            example: icon
         # Aspect Ratio
         AspectRatio:
             type: string
@@ -2329,11 +2303,9 @@ components:
         SVGParamsBase:
             type: object
             description: |
-                Base SVG generation parameters for controlling mode, design, and constraints.
+                Base SVG generation parameters for controlling design and constraints.
                 Canvas is added per-endpoint with appropriate sizing options.
             properties:
-                mode:
-                    $ref: "#/components/schemas/SVGMode"
                 design:
                     $ref: "#/components/schemas/Design"
                 constraints:
@@ -2440,16 +2412,11 @@ components:
             allOf:
                 - $ref: "#/components/schemas/CreateSVGRequest"
                 - type: object
-                  required:
-                      - mode
                   properties:
-                      mode:
-                          $ref: "#/components/schemas/SVGMode"
-                          description: Generation mode, always icon for icon requests
                       canvas:
                           $ref: "#/components/schemas/GenerateCanvas"
                           description: Canvas configuration. Aspect ratio defaults to "1:1" for icons but can be overridden.
-            description: Request to create an icon SVG. Mode is enforced as icon, aspect ratio defaults to 1:1 but can be overridden.
+            description: Request to create an icon SVG. Aspect ratio defaults to 1:1 but can be overridden.
         SVGStreamEvent:
             description: |
                 Streaming event for SVG operations (SSE format).
