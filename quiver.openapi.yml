@@ -1830,42 +1830,6 @@ components:
                         Maximum of 4 images.
                     items:
                         $ref: "#/components/schemas/InputReference"
-        SVGInlineSource:
-            type: object
-            required:
-                - svg
-            properties:
-                svg:
-                    type: string
-                    description: Inline SVG markup
-                    example: <svg xmlns="http://www.w3.org/2000/svg">...</svg>
-        SVGUrlSource:
-            type: object
-            required:
-                - svg_url
-            properties:
-                svg_url:
-                    type: string
-                    format: uri
-                    description: URL to the source SVG
-                    example: https://example.com/source.svg
-        SVGSource:
-            oneOf:
-                - type: string
-                  description: Inline SVG markup
-                  example: <svg xmlns="http://www.w3.org/2000/svg">...</svg>
-                - $ref: "#/components/schemas/SVGInlineSource"
-                - $ref: "#/components/schemas/SVGUrlSource"
-            description: Source SVG for editing operations (inline SVG markup or URL)
-        SVGEditInput:
-            allOf:
-                - $ref: "#/components/schemas/SVGInput"
-                - type: object
-                  required:
-                      - source
-                  properties:
-                      source:
-                          $ref: "#/components/schemas/SVGSource"
         SVGRequestBase:
             type: object
             required:
@@ -2146,22 +2110,6 @@ components:
                 - isometric
                 - hand_drawn
             example: outline
-        SVGAnimateInput:
-            type: object
-            required:
-                - motion_prompt
-                - source
-            properties:
-                motion_prompt:
-                    type: string
-                    description: Description of the desired animation
-                    example: Add a gentle floating animation
-                source:
-                    $ref: "#/components/schemas/SVGSource"
-                instructions:
-                    type: string
-                    description: Additional instructions for the model
-                    example: Use smooth CSS transitions
         AnimateSVGRequest:
             type: object
             description: Not Implemented
