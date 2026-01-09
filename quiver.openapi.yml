@@ -83,7 +83,7 @@ paths:
                                           completion: "0.000002"
                                           image: "0.00001"
                                       supported_operations:
-                                          - svg_create
+                                          - svg_generate
                                           - svg_edit
                                           - svg_animate
                                           - chat_completions
@@ -146,7 +146,7 @@ paths:
                                     completion: "0.000002"
                                     image: "0.00001"
                                 supported_operations:
-                                    - svg_create
+                                    - svg_generate
                                     - svg_edit
                                     - svg_animate
                                     - chat_completions
@@ -171,12 +171,12 @@ paths:
                                 $ref: "#/components/schemas/Error"
     /v1/svgs/generations:
         post:
-            operationId: createSVG
+            operationId: generateSVG
             tags:
                 - SVGs
             summary: Text to SVG
             description: |
-                Creates one or more SVG graphics based on a text prompt and optional
+                Generates one or more SVG graphics based on a text prompt and optional
                 reference images. Supports streaming for real-time progressive rendering.
 
                 When `stream` is set to `true`, the response will be sent as Server-Sent
@@ -188,7 +188,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: "#/components/schemas/CreateSVGRequest"
+                            $ref: "#/components/schemas/GenerateSVGRequest"
                         examples:
                             basic:
                                 summary: Basic SVG generation
@@ -246,16 +246,16 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/SVGStreamEvent"
                             example: |
-                                event: svg_create.reasoning
+                                event: svg_generate.reasoning
                                 data: {"id":"svg-abc123","text":"Creating a minimalist icon with clean geometric shapes..."}
 
-                                event: svg_create.draft
+                                event: svg_generate.draft
                                 data: {"id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32..."}
 
-                                event: svg_create.draft
+                                event: svg_generate.draft
                                 data: {"id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32 L300 100 Z\"/></svg>"}
 
-                                event: svg_create.content
+                                event: svg_generate.content
                                 data: {"id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32 L300 100 Z\"/></svg>","usage":{"total_tokens":1024,"input_tokens":256,"output_tokens":768}}
 
                                 data: [DONE]
@@ -279,7 +279,7 @@ paths:
                                 $ref: "#/components/schemas/Error"
     /v1/svgs/edits:
         post:
-            operationId: createSVGEdit
+            operationId: editSVG
             tags:
                 - SVGs
             summary: Edit SVGs
@@ -393,7 +393,7 @@ paths:
                                 $ref: "#/components/schemas/Error"
     /v1/svgs/animations:
         post:
-            operationId: createSVGAnimation
+            operationId: animateSVG
             tags:
                 - SVGs
             summary: Animate SVGs
@@ -480,7 +480,7 @@ paths:
                                 $ref: "#/components/schemas/Error"
     /v1/svgs/vectorizations:
         post:
-            operationId: createSVGVectorization
+            operationId: vectorizeSVG
             tags:
                 - SVGs
             summary: Image to SVG
@@ -645,12 +645,12 @@ paths:
                                 $ref: "#/components/schemas/Error"
     /v1/svgs/icons/generations:
         post:
-            operationId: createIcon
+            operationId: generateIcon
             tags:
                 - SVGs
-            summary: Create Icons
+            summary: Generate Icons
             description: |
-                Creates one or more icons based on a text prompt.
+                Generates one or more icons based on a text prompt.
                 Icons are always generated with a 1:1 aspect ratio and optimized
                 for use at various scales.
 
@@ -664,7 +664,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: "#/components/schemas/CreateIconRequest"
+                            $ref: "#/components/schemas/GenerateIconRequest"
                         examples:
                             basic:
                                 summary: Basic icon generation
@@ -1634,7 +1634,7 @@ components:
                         $ref: "#/components/schemas/SupportedOperation"
                     example:
                         [
-                            "svg_create",
+                            "svg_generate",
                             "svg_edit",
                             "svg_animate",
                             "chat_completions",
@@ -1659,12 +1659,12 @@ components:
             type: string
             description: API operation that the model supports.
             enum:
-                - svg_create
+                - svg_generate
                 - svg_edit
                 - svg_animate
                 - svg_vectorize
                 - chat_completions
-            example: svg_create
+            example: svg_generate
         SVGCapabilities:
             type: object
             description: SVG-specific capabilities and recommendations for the model.
@@ -1808,7 +1808,7 @@ components:
                 - $ref: "#/components/schemas/InputReferenceUrl"
                 - $ref: "#/components/schemas/InputReferenceBase64"
             description: Reference image input (URL or base64-encoded)
-        SVGInput:
+        SVGGenerateInput:
             type: object
             required:
                 - prompt
@@ -1903,7 +1903,7 @@ components:
 
                         Determinism is not guaranteed.
 
-        CreateSVGRequest:
+        GenerateSVGRequest:
             allOf:
                 - $ref: "#/components/schemas/SVGRequestBase"
                 - type: object
@@ -1911,7 +1911,7 @@ components:
                       - input
                   properties:
                       input:
-                          $ref: "#/components/schemas/SVGInput"
+                          $ref: "#/components/schemas/SVGGenerateInput"
                       canvas:
                           $ref: "#/components/schemas/AspectRatio"
         EditSVGRequest:
@@ -2164,7 +2164,7 @@ components:
                     type: boolean
                     description: Whether the image is suitable for vectorization
                     example: true
-        CreateIconRequest:
+        GenerateIconRequest:
             type: object
             description: Not Implemented
         SVGStreamEvent:
@@ -2176,9 +2176,9 @@ components:
                 3. `*.content` - Final postprocessed, optimized SVG
             oneOf:
                 # Create events (has reasoning)
-                - $ref: "#/components/schemas/SVGCreateReasoningEvent"
-                - $ref: "#/components/schemas/SVGCreateDraftEvent"
-                - $ref: "#/components/schemas/SVGCreateContentEvent"
+                - $ref: "#/components/schemas/SVGGenerateReasoningEvent"
+                - $ref: "#/components/schemas/SVGGenerateDraftEvent"
+                - $ref: "#/components/schemas/SVGGenerateContentEvent"
                 # Vectorize events (no reasoning - just tracing)
                 - $ref: "#/components/schemas/SVGVectorizeDraftEvent"
                 - $ref: "#/components/schemas/SVGVectorizeContentEvent"
@@ -2193,9 +2193,9 @@ components:
             discriminator:
                 propertyName: event
                 mapping:
-                    svg_create.reasoning: "#/components/schemas/SVGCreateReasoningEvent"
-                    svg_create.draft: "#/components/schemas/SVGCreateDraftEvent"
-                    svg_create.content: "#/components/schemas/SVGCreateContentEvent"
+                    svg_generate.reasoning: "#/components/schemas/SVGGenerateReasoningEvent"
+                    svg_generate.draft: "#/components/schemas/SVGGenerateDraftEvent"
+                    svg_generate.content: "#/components/schemas/SVGGenerateContentEvent"
                     svg_vectorize.draft: "#/components/schemas/SVGVectorizeDraftEvent"
                     svg_vectorize.content: "#/components/schemas/SVGVectorizeContentEvent"
                     svg_edit.reasoning: "#/components/schemas/SVGEditReasoningEvent"
@@ -2207,7 +2207,7 @@ components:
         # ============================================================================
         # Create Events (for /v1/svg - has reasoning)
         # ============================================================================
-        SVGCreateReasoningEvent:
+        SVGGenerateReasoningEvent:
             type: object
             description: Model reasoning about SVG design approach.
             required:
@@ -2216,7 +2216,7 @@ components:
             properties:
                 event:
                     type: string
-                    const: svg_create.reasoning
+                    const: svg_generate.reasoning
                 data:
                     type: object
                     required:
@@ -2230,7 +2230,7 @@ components:
                         text:
                             type: string
                             description: Reasoning text about design decisions.
-        SVGCreateDraftEvent:
+        SVGGenerateDraftEvent:
             type: object
             description: Streaming partial SVG chunks as generated by the model.
             required:
@@ -2239,7 +2239,7 @@ components:
             properties:
                 event:
                     type: string
-                    const: svg_create.draft
+                    const: svg_generate.draft
                 data:
                     type: object
                     required:
@@ -2253,7 +2253,7 @@ components:
                         svg:
                             type: string
                             description: Partial SVG markup during streaming.
-        SVGCreateContentEvent:
+        SVGGenerateContentEvent:
             type: object
             description: Final postprocessed, optimized SVG.
             required:
@@ -2262,7 +2262,7 @@ components:
             properties:
                 event:
                     type: string
-                    const: svg_create.content
+                    const: svg_generate.content
                 data:
                     type: object
                     required:
