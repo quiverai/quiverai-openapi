@@ -288,6 +288,8 @@ paths:
                 reference images. The source SVG can be provided as an inline string
                 or URL. Supports streaming for real-time progressive rendering.
 
+                **NOTE: This endpoint is currently not implemented.**
+
                 When `stream` is set to `true`, the response will be sent as Server-Sent
                 Events (SSE) with partial SVG updates followed by a final completion event.
             security:
@@ -326,6 +328,12 @@ paths:
                                         source:
                                             svg: <svg xmlns="http://www.w3.org/2000/svg">...</svg>
             responses:
+                "501":
+                    description: Not Implemented
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
                 "200":
                     description: OK
                     content:
@@ -394,6 +402,8 @@ paths:
                 The source SVG can be provided as an inline string or URL.
                 Supports streaming for real-time progressive rendering.
 
+                **NOTE: This endpoint is currently not implemented.**
+
                 When `stream` is set to `true`, the response will be sent as Server-Sent
                 Events (SSE) with partial SVG updates followed by a final completion event.
             security:
@@ -425,6 +435,12 @@ paths:
                                         source:
                                             svg_url: https://example.com/icon.svg
             responses:
+                "501":
+                    description: Not Implemented
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
                 "200":
                     description: OK
                     content:
@@ -638,6 +654,8 @@ paths:
                 Icons are always generated with a 1:1 aspect ratio and optimized
                 for use at various scales.
 
+                **NOTE: This endpoint is currently not implemented.**
+
                 Supports streaming for real-time progressive rendering.
             security:
                 - BearerAuth: []
@@ -664,6 +682,12 @@ paths:
                                         references:
                                             - url: https://example.com/style-reference.png
             responses:
+                "501":
+                    description: Not Implemented
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
                 "200":
                     description: OK
                     content:
