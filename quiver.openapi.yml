@@ -194,8 +194,7 @@ paths:
                                 summary: Basic SVG generation
                                 value:
                                     model: arrow-0.5
-                                    input:
-                                        prompt: Generate an icon of a unicorn
+                                    prompt: Generate an icon of a unicorn
                             advanced:
                                 summary: Advanced generation with styling and references
                                 value:
@@ -205,11 +204,10 @@ paths:
                                     max_output_tokens: 2560
                                     stream: true
                                     temperature: 0.8
-                                    input:
-                                        instructions: Create a minimal, modern icon
-                                        prompt: Generate an icon of a unicorn
-                                        references:
-                                            - url: https://example.com/uploads/source1.png
+                                    instructions: Create a minimal, modern icon
+                                    prompt: Generate an icon of a unicorn
+                                    references:
+                                        - url: https://example.com/uploads/source1.png
                                     aspect_ratio: "1:1"
             responses:
                 "200":
@@ -296,28 +294,25 @@ paths:
                                 summary: Basic SVG edit with inline source
                                 value:
                                     model: arrow-0.5
-                                    input:
-                                        prompt: Make the unicorn more colorful
-                                        source:
-                                            svg: <svg xmlns="http://www.w3.org/2000/svg">...</svg>
+                                    prompt: Make the unicorn more colorful
+                                    source:
+                                        svg: <svg xmlns="http://www.w3.org/2000/svg">...</svg>
                             url-source:
                                 summary: Edit using SVG from URL
                                 value:
                                     model: arrow-0.5
-                                    input:
-                                        prompt: Simplify the design and use fewer paths
-                                        source:
-                                            svg_url: https://example.com/source.svg
+                                    prompt: Simplify the design and use fewer paths
+                                    source:
+                                        svg_url: https://example.com/source.svg
                             streaming:
                                 summary: Streaming edit with style modifications
                                 value:
                                     model: arrow-0.5
                                     stream: true
                                     temperature: 0.7
-                                    input:
-                                        prompt: Convert to a duotone style
-                                        source:
-                                            svg: <svg xmlns="http://www.w3.org/2000/svg">...</svg>
+                                    prompt: Convert to a duotone style
+                                    source:
+                                        svg: <svg xmlns="http://www.w3.org/2000/svg">...</svg>
             responses:
                 "501":
                     description: Not Implemented
@@ -410,10 +405,9 @@ paths:
                                 summary: Basic SVG animation
                                 value:
                                     model: arrow-0.5
-                                    input:
-                                        motion_prompt: Add a gentle floating animation
-                                        source:
-                                            svg: <svg xmlns="http://www.w3.org/2000/svg">...</svg>
+                                    motion_prompt: Add a gentle floating animation
+                                    source:
+                                        svg: <svg xmlns="http://www.w3.org/2000/svg">...</svg>
                             advanced:
                                 summary: Animation with custom duration and easing
                                 value:
@@ -421,10 +415,9 @@ paths:
                                     stream: true
                                     duration: 3
                                     easing: ease-in-out
-                                    input:
-                                        motion_prompt: Make the icon pulse and rotate slowly
-                                        source:
-                                            svg_url: https://example.com/icon.svg
+                                    motion_prompt: Make the icon pulse and rotate slowly
+                                    source:
+                                        svg_url: https://example.com/icon.svg
             responses:
                 "501":
                     description: Not Implemented
@@ -501,19 +494,17 @@ paths:
                                 summary: Basic image vectorization
                                 value:
                                     model: arrow-0.5
-                                    input:
-                                        image:
-                                            url: https://example.com/logo.png
+                                    image:
+                                        url: https://example.com/logo.png
                             with-simplification:
                                 summary: Vectorization with auto-simplification for photos
                                 value:
                                     model: arrow-0.5
                                     stream: true
                                     simplify_if_needed: true
-                                    input:
-                                        image:
-                                            url: https://example.com/photo.jpg
-                                        instructions: Simplify to minimal geometric shapes
+                                    image:
+                                        url: https://example.com/photo.jpg
+                                    instructions: Simplify to minimal geometric shapes
             responses:
                 "200":
                     description: OK
@@ -657,17 +648,15 @@ paths:
                                 summary: Basic icon generation
                                 value:
                                     model: arrow-0.5
-                                    input:
-                                        prompt: A minimalist unicorn icon
+                                    prompt: A minimalist unicorn icon
                             with-reference:
                                 summary: Icon with style reference
                                 value:
                                     model: arrow-0.5
                                     stream: true
-                                    input:
-                                        prompt: A sleek, modern unicorn icon
-                                        references:
-                                            - url: https://example.com/style-reference.png
+                                    prompt: A sleek, modern unicorn icon
+                                    references:
+                                        - url: https://example.com/style-reference.png
             responses:
                 "501":
                     description: Not Implemented
@@ -1795,28 +1784,6 @@ components:
                 - $ref: "#/components/schemas/InputReferenceUrl"
                 - $ref: "#/components/schemas/InputReferenceBase64"
             description: Reference image input (URL or base64-encoded)
-        SVGGenerateInput:
-            type: object
-            required:
-                - prompt
-            description: Input configuration for text-to-SVG generation
-            properties:
-                instructions:
-                    type: string
-                    description: Additional instructions for the model
-                    example: Create a minimal, modern icon
-                prompt:
-                    type: string
-                    description: The main text prompt describing the desired SVG
-                    example: Generate an icon of a unicorn
-                references:
-                    type: array
-                    maxItems: 4
-                    description: |
-                        Optional reference images to guide style/composition.
-                        Maximum of 4 images.
-                    items:
-                        $ref: "#/components/schemas/InputReference"
         SVGRequestBase:
             type: object
             required:
@@ -1895,10 +1862,24 @@ components:
                 - $ref: "#/components/schemas/SVGRequestBase"
                 - type: object
                   required:
-                      - input
+                      - prompt
                   properties:
-                      input:
-                          $ref: "#/components/schemas/SVGGenerateInput"
+                      prompt:
+                          type: string
+                          description: The main text prompt describing the desired SVG
+                          example: Generate an icon of a unicorn
+                      instructions:
+                          type: string
+                          description: Additional instructions for the model
+                          example: Create a minimal, modern icon
+                      references:
+                          type: array
+                          maxItems: 4
+                          description: |
+                              Optional reference images to guide style/composition.
+                              Maximum of 4 images.
+                          items:
+                              $ref: "#/components/schemas/InputReference"
                       aspect_ratio:
                           $ref: "#/components/schemas/AspectRatio"
         EditSVGRequest:
@@ -2100,28 +2081,20 @@ components:
         AnimateSVGRequest:
             type: object
             description: Not Implemented
-        SVGVectorizeInput:
-            type: object
-            required:
-                - image
-            description: Input configuration for image-to-SVG vectorization
-            properties:
-                image:
-                    $ref: "#/components/schemas/InputReference"
-                    description: The source image to vectorize (exactly one required)
-                instructions:
-                    type: string
-                    description: Optional instructions for vectorization style
-                    example: Simplify to minimal geometric shapes
         VectorizeSVGRequest:
             allOf:
                 - $ref: "#/components/schemas/SVGRequestBase"
                 - type: object
                   required:
-                      - input
+                      - image
                   properties:
-                      input:
-                          $ref: "#/components/schemas/SVGVectorizeInput"
+                      image:
+                          $ref: "#/components/schemas/InputReference"
+                          description: The source image to vectorize (exactly one required)
+                      instructions:
+                          type: string
+                          description: Optional instructions for vectorization style
+                          example: Simplify to minimal geometric shapes
                       aspect_ratio:
                           $ref: "#/components/schemas/AspectRatio"
                       simplify_if_needed:
