@@ -1,9 +1,9 @@
 openapi: 3.1.0
 info:
-    title: Quiver Arrow API
+    title: QuiverAI API
     version: 1.0.0
     description: |
-        The Quiver Arrow API enables developers to generate and edit SVG graphics using AI,
+        The QuiverAI API enables developers to generate and edit SVG graphics using AI,
         as well as create chat completions with OpenAI-compatible endpoints.
         The API provides endpoints for model discovery, chat completions, and SVG generation/editing
         with support for streaming responses.
