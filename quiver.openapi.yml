@@ -2090,8 +2090,6 @@ components:
                       image:
                           $ref: "#/components/schemas/ImageInputReference"
                           description: The source image to vectorize (exactly one required)
-                      aspect_ratio:
-                          $ref: "#/components/schemas/AspectRatio"
                       simplify_if_needed:
                           type: boolean
                           description: |
