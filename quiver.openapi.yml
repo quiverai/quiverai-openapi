@@ -1761,7 +1761,7 @@ components:
             required:
                 - object
                 - data
-        InputReferenceUrl:
+        ImageInputReferenceUrl:
             type: object
             required:
                 - url
@@ -1770,7 +1770,7 @@ components:
                     type: string
                     description: Image URL or base64 data URI
                     example: https://example.com/uploads/reference1.png
-        InputReferenceBase64:
+        ImageInputReferenceBase64:
             type: object
             required:
                 - base64
@@ -1779,10 +1779,10 @@ components:
                     type: string
                     description: Base64-encoded image data
                     example: iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==
-        InputReference:
+        ImageInputReference:
             oneOf:
-                - $ref: "#/components/schemas/InputReferenceUrl"
-                - $ref: "#/components/schemas/InputReferenceBase64"
+                - $ref: "#/components/schemas/ImageInputReferenceUrl"
+                - $ref: "#/components/schemas/ImageInputReferenceBase64"
             description: Reference image input (URL or base64-encoded)
         SVGRequestBase:
             type: object
@@ -1879,7 +1879,7 @@ components:
                               Optional reference images to guide style/composition.
                               Maximum of 4 images.
                           items:
-                              $ref: "#/components/schemas/InputReference"
+                              $ref: "#/components/schemas/ImageInputReference"
                       aspect_ratio:
                           $ref: "#/components/schemas/AspectRatio"
         EditSVGRequest:
@@ -2089,7 +2089,7 @@ components:
                       - image
                   properties:
                       image:
-                          $ref: "#/components/schemas/InputReference"
+                          $ref: "#/components/schemas/ImageInputReference"
                           description: The source image to vectorize (exactly one required)
                       instructions:
                           type: string
@@ -2112,7 +2112,7 @@ components:
             description: Request to check if an image is suitable for vectorization
             properties:
                 image:
-                    $ref: "#/components/schemas/InputReference"
+                    $ref: "#/components/schemas/ImageInputReference"
                     description: The image to analyze
         VectorizabilityCheckResponse:
             type: object
