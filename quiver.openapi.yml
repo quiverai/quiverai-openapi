@@ -89,6 +89,34 @@ paths:
                                         - svg_vectorize
                                         - chat_completions
                                       supported_sampling_parameters: ["temperature", "top_p", "stop", "frequency_penalty", "presence_penalty", "seed"]
+                "401":
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                            examples:
+                                invalid-api-key:
+                                    summary: Missing or invalid API key
+                                    value:
+                                        type: authentication_error
+                                        message: Missing or invalid API key
+                                        code: invalid_api_key
+                                        param: null
+                "429":
+                    description: Rate limit exceeded
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                            examples:
+                                rate-limit-exceeded:
+                                    summary: Too many requests
+                                    value:
+                                        type: rate_limit_error
+                                        message: Rate limit exceeded. Please try again later.
+                                        code: rate_limit_exceeded
+                                        param: null
     /v1/models/{model}:
         get:
             operationId: retrieveModel
@@ -114,34 +142,97 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Model"
-                            example:
-                                id: arrow-0.5
-                                object: model
-                                name: "Arrow 0.5"
-                                description: "Optimized for high-quality icon and illustration generation"
-                                created: 1704067200
-                                owned_by: quiver
-                                input_modalities: ["text", "image"]
-                                output_modalities: ["svg"]
-                                context_length: 128000
-                                max_output_length: 16384
-                                pricing:
-                                    prompt: "0.000001"
-                                    completion: "0.000002"
-                                    image: "0.00001"
-                                supported_operations:
-                                    - svg_generate
-                                    - svg_edit
-                                    - svg_animate
-                                    - svg_vectorize
-                                    - chat_completions
-                                supported_sampling_parameters: ["temperature", "top_p", "stop", "frequency_penalty", "presence_penalty", "seed"]
+                            examples:
+                                arrow-0.5:
+                                    summary: Arrow 0.5 (stable)
+                                    value:
+                                        id: arrow-0.5
+                                        object: model
+                                        name: "Arrow 0.5"
+                                        description: "Optimized for high-quality icon and illustration generation"
+                                        created: 1704067200
+                                        owned_by: quiver
+                                        input_modalities: ["text", "image"]
+                                        output_modalities: ["svg"]
+                                        context_length: 128000
+                                        max_output_length: 16384
+                                        pricing:
+                                            prompt: "0.000001"
+                                            completion: "0.000002"
+                                            image: "0.00001"
+                                        supported_operations:
+                                            - svg_generate
+                                            - svg_edit
+                                            - svg_animate
+                                            - svg_vectorize
+                                            - chat_completions
+                                        supported_sampling_parameters: ["temperature", "top_p", "stop", "frequency_penalty", "presence_penalty", "seed"]
+                                arrow-0.5-preview:
+                                    summary: Arrow 0.5 Preview
+                                    value:
+                                        id: arrow-0.5-preview
+                                        object: model
+                                        name: "Arrow 0.5 Preview"
+                                        description: "Preview build of Arrow 0.5 with latest improvements"
+                                        created: 1704067200
+                                        owned_by: quiver
+                                        input_modalities: ["text", "image"]
+                                        output_modalities: ["svg"]
+                                        context_length: 128000
+                                        max_output_length: 16384
+                                        pricing:
+                                            prompt: "0.000001"
+                                            completion: "0.000002"
+                                            image: "0.00001"
+                                        supported_operations:
+                                            - svg_generate
+                                            - svg_edit
+                                            - svg_animate
+                                            - svg_vectorize
+                                            - chat_completions
+                                        supported_sampling_parameters: ["temperature", "top_p", "stop", "frequency_penalty", "presence_penalty", "seed"]
                 "404":
                     description: Model not found
                     content:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                            examples:
+                                model-not-found:
+                                    summary: Unknown model ID
+                                    value:
+                                        type: invalid_request_error
+                                        message: Model 'arrow-9.9' does not exist
+                                        code: model_not_found
+                                        param: model
+                "401":
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                            examples:
+                                invalid-api-key:
+                                    summary: Missing or invalid API key
+                                    value:
+                                        type: authentication_error
+                                        message: Missing or invalid API key
+                                        code: invalid_api_key
+                                        param: null
+                "429":
+                    description: Rate limit exceeded
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                            examples:
+                                rate-limit-exceeded:
+                                    summary: Too many requests
+                                    value:
+                                        type: rate_limit_error
+                                        message: Rate limit exceeded. Please try again later.
+                                        code: rate_limit_exceeded
+                                        param: null
     /v1/svgs/generations:
         post:
             operationId: generateSVG
@@ -167,15 +258,34 @@ paths:
                                 summary: Basic SVG generation
                                 value:
                                     model: arrow-0.5
+                                    stream: false
                                     prompt: Generate an icon of a unicorn
-                            advanced:
-                                summary: Advanced generation with styling and references
+                            all-params:
+                                summary: Non-streaming generation using all optional parameters (includes deprecated seed)
                                 value:
                                     model: arrow-0.5
+                                    stream: false
+                                    prompt: Generate a minimalist unicorn icon for a SaaS dashboard
+                                    instructions: Use a flat monochrome style with rounded corners and clean geometry. Avoid gradients. Return only SVG markup.
+                                    aspect_ratio: "1:1"
+                                    n: 2
+                                    temperature: 0.4
+                                    top_p: 0.95
+                                    max_output_tokens: 4096
+                                    frequency_penalty: 0.1
+                                    presence_penalty: 0.2
+                                    seed: 42
+                                    references:
+                                        - url: https://example.com/uploads/reference-style.png
+                                        - base64: iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==
+                            streaming:
+                                summary: Streaming generation (SSE) with references and styling
+                                value:
+                                    model: arrow-0.5
+                                    stream: true
                                     n: 2
                                     top_p: 1
                                     max_output_tokens: 2560
-                                    stream: true
                                     temperature: 0.8
                                     instructions: Create a minimal, modern icon
                                     prompt: Generate an icon of a unicorn
@@ -189,21 +299,43 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/SVGResponse"
-                            example:
-                                id: svg-abc123
-                                created: 1704067200
-                                data:
-                                    - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
-                                      mime_type: image/svg+xml
-                                usage:
-                                    total_tokens: 1024
-                                    input_tokens: 256
-                                    output_tokens: 768
-                                    input_tokens_details:
-                                        text_tokens: 128
-                                        image_tokens: 128
-                                    output_tokens_details:
-                                        svg_tokens: 768
+                            examples:
+                                single:
+                                    summary: Single SVG (n=1)
+                                    value:
+                                        id: svg-abc123
+                                        created: 1704067200
+                                        data:
+                                            - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
+                                              mime_type: image/svg+xml
+                                        usage:
+                                            total_tokens: 1024
+                                            input_tokens: 256
+                                            output_tokens: 768
+                                            input_tokens_details:
+                                                text_tokens: 128
+                                                image_tokens: 128
+                                            output_tokens_details:
+                                                svg_tokens: 768
+                                multiple:
+                                    summary: Multiple SVGs (n=2)
+                                    value:
+                                        id: svg-abc123
+                                        created: 1704067200
+                                        data:
+                                            - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
+                                              mime_type: image/svg+xml
+                                            - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
+                                              mime_type: image/svg+xml
+                                        usage:
+                                            total_tokens: 1800
+                                            input_tokens: 300
+                                            output_tokens: 1500
+                                            input_tokens_details:
+                                                text_tokens: 200
+                                                image_tokens: 100
+                                            output_tokens_details:
+                                                svg_tokens: 1500
                         text/event-stream:
                             x-speakeasy-sse-sentinel: "[DONE]"
                             schema:
@@ -228,18 +360,42 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                            examples:
+                                invalid-prompt:
+                                    summary: Prompt is missing or invalid
+                                    value:
+                                        type: invalid_request_error
+                                        message: "`prompt` must be a non-empty string"
+                                        code: invalid_prompt
+                                        param: prompt
                 "401":
                     description: Unauthorized
                     content:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                            examples:
+                                invalid-api-key:
+                                    summary: Missing or invalid API key
+                                    value:
+                                        type: authentication_error
+                                        message: Missing or invalid API key
+                                        code: invalid_api_key
+                                        param: null
                 "429":
                     description: Rate limit exceeded
                     content:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                            examples:
+                                rate-limit-exceeded:
+                                    summary: Too many requests
+                                    value:
+                                        type: rate_limit_error
+                                        message: Rate limit exceeded. Please try again later.
+                                        code: rate_limit_exceeded
+                                        param: null
     /v1/svgs/edits:
         post:
             operationId: editSVG
@@ -425,17 +581,35 @@ paths:
                             $ref: "#/components/schemas/VectorizeSVGRequest"
                         examples:
                             basic:
-                                summary: Basic image vectorization
+                                summary: Basic image vectorization (non-streaming)
                                 value:
                                     model: arrow-0.5
+                                    stream: false
                                     image:
                                         url: https://example.com/logo.png
-                            with-simplification:
-                                summary: Vectorization with auto-simplification for photos
+                            all-params:
+                                summary: Non-streaming vectorization using all optional parameters (includes deprecated seed)
+                                value:
+                                    model: arrow-0.5
+                                    stream: false
+                                    n: 2
+                                    temperature: 0.3
+                                    top_p: 0.9
+                                    max_output_tokens: 4096
+                                    frequency_penalty: 0.1
+                                    presence_penalty: 0.0
+                                    seed: 42
+                                    simplify_if_needed: true
+                                    auto_crop: true
+                                    image:
+                                        url: https://example.com/photo.jpg
+                            streaming:
+                                summary: Streaming vectorization for photos (draft + content SSE)
                                 value:
                                     model: arrow-0.5
                                     stream: true
                                     simplify_if_needed: true
+                                    auto_crop: true
                                     image:
                                         url: https://example.com/photo.jpg
             responses:
@@ -445,21 +619,43 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/SVGResponse"
-                            example:
-                                id: svg-xyz789
-                                created: 1704067200
-                                data:
-                                    - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
-                                      mime_type: image/svg+xml
-                                usage:
-                                    total_tokens: 1024
-                                    input_tokens: 512
-                                    output_tokens: 512
-                                    input_tokens_details:
-                                        text_tokens: 0
-                                        image_tokens: 512
-                                    output_tokens_details:
-                                        svg_tokens: 512
+                            examples:
+                                single:
+                                    summary: Single SVG (n=1)
+                                    value:
+                                        id: svg-xyz789
+                                        created: 1704067200
+                                        data:
+                                            - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
+                                              mime_type: image/svg+xml
+                                        usage:
+                                            total_tokens: 1024
+                                            input_tokens: 512
+                                            output_tokens: 512
+                                            input_tokens_details:
+                                                text_tokens: 0
+                                                image_tokens: 512
+                                            output_tokens_details:
+                                                svg_tokens: 512
+                                multiple:
+                                    summary: Multiple SVGs (n=2)
+                                    value:
+                                        id: svg-xyz789
+                                        created: 1704067200
+                                        data:
+                                            - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
+                                              mime_type: image/svg+xml
+                                            - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
+                                              mime_type: image/svg+xml
+                                        usage:
+                                            total_tokens: 1800
+                                            input_tokens: 700
+                                            output_tokens: 1100
+                                            input_tokens_details:
+                                                text_tokens: 0
+                                                image_tokens: 700
+                                            output_tokens_details:
+                                                svg_tokens: 1100
                         text/event-stream:
                             x-speakeasy-sse-sentinel: "[DONE]"
                             schema:
@@ -481,18 +677,42 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                            examples:
+                                invalid-image:
+                                    summary: Image is missing or invalid
+                                    value:
+                                        type: invalid_request_error
+                                        message: "Exactly one `image` must be provided"
+                                        code: invalid_image
+                                        param: image
                 "401":
                     description: Unauthorized
                     content:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                            examples:
+                                invalid-api-key:
+                                    summary: Missing or invalid API key
+                                    value:
+                                        type: authentication_error
+                                        message: Missing or invalid API key
+                                        code: invalid_api_key
+                                        param: null
                 "429":
                     description: Rate limit exceeded
                     content:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                            examples:
+                                rate-limit-exceeded:
+                                    summary: Too many requests
+                                    value:
+                                        type: rate_limit_error
+                                        message: Rate limit exceeded. Please try again later.
+                                        code: rate_limit_exceeded
+                                        param: null
     /v1/svgs/vectorizations/checks:
         post:
             operationId: checkSVGVectorizability
@@ -543,18 +763,42 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                            examples:
+                                invalid-image:
+                                    summary: Image is missing or invalid
+                                    value:
+                                        type: invalid_request_error
+                                        message: "Exactly one `image` must be provided"
+                                        code: invalid_image
+                                        param: image
                 "401":
                     description: Unauthorized
                     content:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                            examples:
+                                invalid-api-key:
+                                    summary: Missing or invalid API key
+                                    value:
+                                        type: authentication_error
+                                        message: Missing or invalid API key
+                                        code: invalid_api_key
+                                        param: null
                 "429":
                     description: Rate limit exceeded
                     content:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                            examples:
+                                rate-limit-exceeded:
+                                    summary: Too many requests
+                                    value:
+                                        type: rate_limit_error
+                                        message: Rate limit exceeded. Please try again later.
+                                        code: rate_limit_exceeded
+                                        param: null
     /v1/svgs/icons/generations:
         post:
             operationId: generateIcon
@@ -1612,7 +1856,6 @@ components:
             type: object
             required:
                 - model
-                - stream
             properties:
                 model:
                     type: string
