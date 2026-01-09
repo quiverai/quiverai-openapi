@@ -196,9 +196,6 @@ paths:
                                     model: arrow-0.5
                                     input:
                                         prompt: Generate an icon of a unicorn
-                                        geometry:
-                                            width: 512
-                                            height: 512
                             advanced:
                                 summary: Advanced generation with styling and references
                                 value:
@@ -213,13 +210,7 @@ paths:
                                         prompt: Generate an icon of a unicorn
                                         references:
                                             - url: https://example.com/uploads/source1.png
-                                    canvas:
-                                        aspect_ratio: "1:1"
-                                        safe_zone:
-                                            mode: relative
-                                            value: 0.1
-                                            overrides:
-                                                bottom: 0.15
+                                    aspect_ratio: "1:1"
             responses:
                 "200":
                     description: OK
@@ -523,10 +514,6 @@ paths:
                                         image:
                                             url: https://example.com/photo.jpg
                                         instructions: Simplify to minimal geometric shapes
-                                    canvas:
-                                        safe_zone:
-                                            mode: relative
-                                            value: 0.1
             responses:
                 "200":
                     description: OK
@@ -1912,7 +1899,7 @@ components:
                   properties:
                       input:
                           $ref: "#/components/schemas/SVGGenerateInput"
-                      canvas:
+                      aspect_ratio:
                           $ref: "#/components/schemas/AspectRatio"
         EditSVGRequest:
             type: object
@@ -2135,7 +2122,7 @@ components:
                   properties:
                       input:
                           $ref: "#/components/schemas/SVGVectorizeInput"
-                      canvas:
+                      aspect_ratio:
                           $ref: "#/components/schemas/AspectRatio"
                       simplify_if_needed:
                           type: boolean
