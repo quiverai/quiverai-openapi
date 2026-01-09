@@ -217,6 +217,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/SVGResponse"
                             example:
+                                id: svg-abc123
                                 created: 1704067200
                                 data:
                                     - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
@@ -289,30 +290,6 @@ paths:
                     application/json:
                         schema:
                             $ref: "#/components/schemas/EditSVGRequest"
-                        examples:
-                            basic:
-                                summary: Basic SVG edit with inline source
-                                value:
-                                    model: arrow-0.5
-                                    prompt: Make the unicorn more colorful
-                                    source:
-                                        svg: <svg xmlns="http://www.w3.org/2000/svg">...</svg>
-                            url-source:
-                                summary: Edit using SVG from URL
-                                value:
-                                    model: arrow-0.5
-                                    prompt: Simplify the design and use fewer paths
-                                    source:
-                                        svg_url: https://example.com/source.svg
-                            streaming:
-                                summary: Streaming edit with style modifications
-                                value:
-                                    model: arrow-0.5
-                                    stream: true
-                                    temperature: 0.7
-                                    prompt: Convert to a duotone style
-                                    source:
-                                        svg: <svg xmlns="http://www.w3.org/2000/svg">...</svg>
             responses:
                 "501":
                     description: Not Implemented
@@ -327,6 +304,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/SVGResponse"
                             example:
+                                id: svg-def456
                                 created: 1704067200
                                 data:
                                     - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
@@ -400,24 +378,6 @@ paths:
                     application/json:
                         schema:
                             $ref: "#/components/schemas/AnimateSVGRequest"
-                        examples:
-                            basic:
-                                summary: Basic SVG animation
-                                value:
-                                    model: arrow-0.5
-                                    motion_prompt: Add a gentle floating animation
-                                    source:
-                                        svg: <svg xmlns="http://www.w3.org/2000/svg">...</svg>
-                            advanced:
-                                summary: Animation with custom duration and easing
-                                value:
-                                    model: arrow-0.5
-                                    stream: true
-                                    duration: 3
-                                    easing: ease-in-out
-                                    motion_prompt: Make the icon pulse and rotate slowly
-                                    source:
-                                        svg_url: https://example.com/icon.svg
             responses:
                 "501":
                     description: Not Implemented
@@ -432,6 +392,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/SVGResponse"
                             example:
+                                id: svg-ghi789
                                 created: 1704067200
                                 data:
                                     - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><style>@keyframes float{...}</style>...</svg>
@@ -512,6 +473,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/SVGResponse"
                             example:
+                                id: svg-xyz789
                                 created: 1704067200
                                 data:
                                     - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
@@ -642,20 +604,6 @@ paths:
                     application/json:
                         schema:
                             $ref: "#/components/schemas/GenerateIconRequest"
-                        examples:
-                            basic:
-                                summary: Basic icon generation
-                                value:
-                                    model: arrow-0.5
-                                    prompt: A minimalist unicorn icon
-                            with-reference:
-                                summary: Icon with style reference
-                                value:
-                                    model: arrow-0.5
-                                    stream: true
-                                    prompt: A sleek, modern unicorn icon
-                                    references:
-                                        - url: https://example.com/style-reference.png
             responses:
                 "501":
                     description: Not Implemented
@@ -670,6 +618,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/SVGResponse"
                             example:
+                                id: svg-icon123
                                 created: 1704067200
                                 data:
                                     - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">...</svg>
@@ -860,36 +809,6 @@ components:
                 - content
                 - role
         ChatCompletionRequestSystemMessageContentPart:
-            anyOf:
-                - $ref: "#/components/schemas/ChatCompletionRequestMessageContentPartText"
-        ChatCompletionRequestToolMessage:
-            type: object
-            title: Tool message
-            properties:
-                role:
-                    $ref: "#/components/schemas/ChatCompletionRole"
-                    description: The role of the messages author, in this case `tool`.
-                    content:
-                        description: The contents of the tool message.
-                        anyOf:
-                            - type: string
-                              description: The contents of the tool message.
-                              title: Text content
-                            - type: array
-                              description: >-
-                                  An array of content parts with a defined type. For tool messages, only type `text` is supported.
-                              title: Array of content parts
-                              items:
-                                  $ref: "#/components/schemas/ChatCompletionRequestToolMessageContentPart"
-                              minItems: 1
-                    tool_call_id:
-                        type: string
-                        description: Tool call that this message is responding to.
-            required:
-                - role
-                - content
-                - tool_call_id
-        ChatCompletionRequestToolMessageContentPart:
             anyOf:
                 - $ref: "#/components/schemas/ChatCompletionRequestMessageContentPartText"
         ChatCompletionRequestUserMessage:
@@ -1670,18 +1589,6 @@ components:
                     items:
                         type: integer
                     example: [24, 48, 64, 128, 256, 512]
-        Quantization:
-            type: string
-            description: Model quantization level.
-            enum:
-                - int4
-                - int8
-                - fp4
-                - fp6
-                - fp8
-                - fp16
-                - bf16
-                - fp32
         SamplingParameter:
             type: string
             description: Supported sampling parameter.
@@ -1694,15 +1601,6 @@ components:
                 - presence_penalty
                 - stop
                 - seed
-        ModelFeature:
-            type: string
-            description: Supported model feature.
-            enum:
-                - tools
-                - json_mode
-                - structured_outputs
-                - web_search
-                - reasoning
         ModelPricing:
             type: object
             description: Pricing information for the model (per token, in USD as strings to avoid floating point issues).
@@ -1734,14 +1632,6 @@ components:
                     type: string
                     description: Price per cached input token write in USD.
                     example: "0"
-        Datacenter:
-            type: object
-            description: Datacenter location information.
-            properties:
-                country_code:
-                    type: string
-                    description: ISO 3166-1 alpha-2 country code.
-                    example: "US"
         ListModelsResponse:
             type: object
             description: Response containing a list of available models. Compatible with OpenAI SDK.
@@ -1946,118 +1836,6 @@ components:
                 - "21:9"
             default: "1:1"
             example: "1:1"
-        # Color System
-        HexColor:
-            type: string
-            description: Hex color in `#RRGGBB` format
-            pattern: "^#[0-9A-Fa-f]{6}$"
-            example: "#12FBA2"
-        NamedColorValue:
-            type: object
-            description: A color with a semantic name (e.g., "background", "primary", "accent")
-            required:
-                - value
-                - name
-            properties:
-                value:
-                    $ref: "#/components/schemas/HexColor"
-                name:
-                    type: string
-                    description: Semantic label for the color (e.g., "background", "primary", "accent")
-                    example: background
-        ColorValue:
-            description: |
-                A color entry: either a plain hex string or an object with name and value.
-                - Plain hex: `"#FF5733"` (unnamed, part of general palette)
-                - Named: `{ "value": "#FFFFFF", "name": "background" }` (semantic color)
-            oneOf:
-                - $ref: "#/components/schemas/HexColor"
-                - $ref: "#/components/schemas/NamedColorValue"
-        ColorAdherence:
-            type: string
-            description: |
-                How strictly the model must adhere to the provided colors.
-                - `strict`: Only use exact hex codes provided
-                - `tints_and_shades`: Can adjust lightness/opacity, but no new hues
-                - `creative`: Palette is a suggestion/starting point
-            enum:
-                - strict
-                - tints_and_shades
-                - creative
-            default: tints_and_shades
-        Colors:
-            type: object
-            description: The color system configuration for SVG generation
-            properties:
-                max_colors:
-                    type: integer
-                    description: Soft limit on unique colors
-                    example: 4
-                    minimum: 1
-                    maximum: 256
-                    default: 16
-                allow_gradients:
-                    type: boolean
-                    description: If true, allows <linearGradient> and <radialGradient> definitions
-                    default: false
-                values:
-                    type: array
-                    description: |
-                        List of colors to use. Supports both named and unnamed entries:
-                        - Named: `{ "value": "#FFFFFF", "name": "background" }` for semantic colors
-                        - Unnamed: `"#FF5733"` for general palette colors
-                    items:
-                        $ref: "#/components/schemas/ColorValue"
-                    example:
-                        - value: "#FFFFFF"
-                          name: background
-                        - value: "#1A1A1A"
-                          name: primary
-                        - value: "#12FBA2"
-                          name: accent
-                        - "#FF5733"
-                        - "#00BFFF"
-                    x-go-type-skip-optional-pointer: true
-                adherence:
-                    $ref: "#/components/schemas/ColorAdherence"
-        # Stroke Styling
-        StrokeLineCap:
-            type: string
-            description: |
-                The shape at the end of open paths.
-                - `butt`: Flat edge at the exact endpoint
-                - `round`: Rounded edge extending past endpoint
-                - `square`: Square edge extending past endpoint
-            enum:
-                - butt
-                - round
-                - square
-            default: round
-            example: round
-        StrokeLineJoin:
-            type: string
-            description: |
-                The shape at the corners where paths meet.
-                - `miter`: Sharp pointed corner
-                - `round`: Rounded corner
-                - `bevel`: Flat diagonal corner
-            enum:
-                - miter
-                - round
-                - bevel
-            default: round
-            example: round
-        FillRule:
-            type: string
-            description: |
-                Algorithm for determining inside/outside of complex paths.
-                - `nonzero`: Standard fill rule
-                - `evenodd`: Alternating fill based on path crossings
-            enum:
-                - nonzero
-                - evenodd
-            default: nonzero
-            example: nonzero
         # Style Preset
         StylePreset:
             type: string
