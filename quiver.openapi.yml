@@ -20,8 +20,12 @@ tags:
       description: Given a list of messages comprising a conversation, the model will return a response.
     - name: Models
       description: Operations for listing and retrieving available models
-    - name: SVGs
-      description: Operations for creating and transforming SVG graphics, including creating, editing and animating.
+    - name: Create SVGs
+      description: Generate SVG graphics from text prompts, reference images, or raster images
+    - name: Modify SVGs
+      description: Edit or animate existing SVG graphics
+    - name: SVG Utilities
+      description: Helper operations for SVG workflows
 paths:
     /v1/chat/completions:
         post:
@@ -237,7 +241,7 @@ paths:
         post:
             operationId: generateSVG
             tags:
-                - SVGs
+                - Create SVGs
             summary: Text to SVG
             description: |
                 Generates one or more SVG graphics based on a text prompt and optional
@@ -400,7 +404,7 @@ paths:
         post:
             operationId: editSVG
             tags:
-                - SVGs
+                - Modify SVGs
             summary: Edit SVGs
             description: |
                 Edits an existing SVG graphic based on a text prompt and optional
@@ -488,7 +492,7 @@ paths:
         post:
             operationId: animateSVG
             tags:
-                - SVGs
+                - Modify SVGs
             summary: Animate SVGs
             description: |
                 Adds CSS animations to an existing SVG graphic based on a motion prompt.
@@ -556,7 +560,7 @@ paths:
         post:
             operationId: vectorizeSVG
             tags:
-                - SVGs
+                - Create SVGs
             summary: Image to SVG
             description: |
                 Converts a raster image (PNG, JPEG, WebP) into an SVG graphic.
@@ -717,7 +721,7 @@ paths:
         post:
             operationId: checkSVGVectorizability
             tags:
-                - SVGs
+                - SVG Utilities
             summary: Check image vectorizability
             description: |
                 Analyzes an image and returns whether it is suitable for vectorization.
@@ -803,7 +807,7 @@ paths:
         post:
             operationId: generateIcon
             tags:
-                - SVGs
+                - Create SVGs
             summary: Generate Icons
             description: |
                 Generates one or more icons based on a text prompt.
