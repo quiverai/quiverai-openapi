@@ -1951,14 +1951,8 @@ components:
                       canvas:
                           $ref: "#/components/schemas/AspectRatio"
         EditSVGRequest:
-            allOf:
-                - $ref: "#/components/schemas/SVGRequestBase"
-                - type: object
-                  required:
-                      - input
-                  properties:
-                      input:
-                          $ref: "#/components/schemas/SVGEditInput"
+            type: object
+            description: Not Implemented
         SVGDocument:
             type: object
             required:
@@ -2169,34 +2163,8 @@ components:
                     description: Additional instructions for the model
                     example: Use smooth CSS transitions
         AnimateSVGRequest:
-            allOf:
-                - $ref: "#/components/schemas/SVGRequestBase"
-                - type: object
-                  required:
-                      - input
-                  properties:
-                      input:
-                          $ref: "#/components/schemas/SVGAnimateInput"
-                      canvas:
-                          $ref: "#/components/schemas/AspectRatio"
-                      duration:
-                          type: integer
-                          description: Animation duration in seconds
-                          example: 2
-                          default: 2
-                          minimum: 1
-                          maximum: 30
-                      easing:
-                          type: string
-                          description: CSS easing function
-                          enum:
-                              - linear
-                              - ease
-                              - ease-in
-                              - ease-out
-                              - ease-in-out
-                          default: ease
-                          example: ease-in-out
+            type: object
+            description: Not Implemented
         SVGVectorizeInput:
             type: object
             required:
@@ -2249,14 +2217,8 @@ components:
                     description: Whether the image is suitable for vectorization
                     example: true
         CreateIconRequest:
-            allOf:
-                - $ref: "#/components/schemas/CreateSVGRequest"
-                - type: object
-                  properties:
-                      canvas:
-                          $ref: "#/components/schemas/AspectRatio"
-                          description: Canvas configuration. Aspect ratio defaults to "1:1" for icons but can be overridden.
-            description: Request to create an icon SVG. Aspect ratio defaults to 1:1 but can be overridden.
+            type: object
+            description: Not Implemented
         SVGStreamEvent:
             description: |
                 Streaming event for SVG operations (SSE format).
