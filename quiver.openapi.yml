@@ -83,16 +83,20 @@ paths:
                                       context_length: 128000
                                       max_output_length: 16384
                                       pricing:
-                                        prompt: "0.000001"
-                                        completion: "0.000002"
-                                        image: "0.00001"
+                                          prompt: "0.000001"
+                                          completion: "0.000002"
+                                          image: "0.00001"
                                       supported_operations:
-                                        - svg_generate
-                                        - svg_edit
-                                        - svg_animate
-                                        - svg_vectorize
-                                        - chat_completions
-                                      supported_sampling_parameters: ["temperature", "top_p", "stop", "frequency_penalty", "presence_penalty", "seed"]
+                                          - chat_completions
+                                      supported_sampling_parameters:
+                                          [
+                                              "temperature",
+                                              "top_p",
+                                              "stop",
+                                              "frequency_penalty",
+                                              "presence_penalty",
+                                              "seed",
+                                          ]
                 "401":
                     description: Unauthorized
                     content:
@@ -137,7 +141,7 @@ paths:
                   name: model
                   required: true
                   schema:
-                    $ref: "#/components/schemas/ModelIdsShared"
+                      $ref: "#/components/schemas/ModelIdsShared"
                   description: The ID of the model to retrieve
             responses:
                 "200":
@@ -165,12 +169,16 @@ paths:
                                             completion: "0.000002"
                                             image: "0.00001"
                                         supported_operations:
-                                            - svg_generate
-                                            - svg_edit
-                                            - svg_animate
-                                            - svg_vectorize
                                             - chat_completions
-                                        supported_sampling_parameters: ["temperature", "top_p", "stop", "frequency_penalty", "presence_penalty", "seed"]
+                                        supported_sampling_parameters:
+                                            [
+                                                "temperature",
+                                                "top_p",
+                                                "stop",
+                                                "frequency_penalty",
+                                                "presence_penalty",
+                                                "seed",
+                                            ]
                                 arrow-0.5-preview:
                                     summary: Arrow 0.5 Preview
                                     value:
@@ -189,12 +197,16 @@ paths:
                                             completion: "0.000002"
                                             image: "0.00001"
                                         supported_operations:
-                                            - svg_generate
-                                            - svg_edit
-                                            - svg_animate
-                                            - svg_vectorize
                                             - chat_completions
-                                        supported_sampling_parameters: ["temperature", "top_p", "stop", "frequency_penalty", "presence_penalty", "seed"]
+                                        supported_sampling_parameters:
+                                            [
+                                                "temperature",
+                                                "top_p",
+                                                "stop",
+                                                "frequency_penalty",
+                                                "presence_penalty",
+                                                "seed",
+                                            ]
                 "404":
                     description: Model not found
                     content:
@@ -316,11 +328,6 @@ paths:
                                             total_tokens: 1024
                                             input_tokens: 256
                                             output_tokens: 768
-                                            input_tokens_details:
-                                                text_tokens: 128
-                                                image_tokens: 128
-                                            output_tokens_details:
-                                                svg_tokens: 768
                                 multiple:
                                     summary: Multiple SVGs (n=2)
                                     value:
@@ -335,27 +342,22 @@ paths:
                                             total_tokens: 1800
                                             input_tokens: 300
                                             output_tokens: 1500
-                                            input_tokens_details:
-                                                text_tokens: 200
-                                                image_tokens: 100
-                                            output_tokens_details:
-                                                svg_tokens: 1500
                         text/event-stream:
                             x-speakeasy-sse-sentinel: "[DONE]"
                             schema:
                                 $ref: "#/components/schemas/SVGStreamEvent"
                             example: |
-                                event: svg_generate.reasoning
-                                data: {"id":"svg-abc123","text":"Creating a minimalist icon with clean geometric shapes..."}
+                                event: reasoning
+                                data: {"type":"reasoning","id":"svg-abc123","svg":"","text":"Creating a minimalist icon with clean geometric shapes..."}
 
-                                event: svg_generate.draft
-                                data: {"id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32..."}
+                                event: draft
+                                data: {"type":"draft","id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32..."}
 
-                                event: svg_generate.draft
-                                data: {"id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32 L300 100 Z\"/></svg>"}
+                                event: draft
+                                data: {"type":"draft","id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32 L300 100 Z\"/></svg>"}
 
-                                event: svg_generate.content
-                                data: {"id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32 L300 100 Z\"/></svg>","usage":{"total_tokens":1024,"input_tokens":256,"output_tokens":768}}
+                                event: content
+                                data: {"type":"content","id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32 L300 100 Z\"/></svg>","usage":{"total_tokens":1024,"input_tokens":256,"output_tokens":768}}
 
                                 data: [DONE]
                 "400":
@@ -446,28 +448,22 @@ paths:
                                     total_tokens: 1536
                                     input_tokens: 768
                                     output_tokens: 768
-                                    input_tokens_details:
-                                        text_tokens: 128
-                                        image_tokens: 0
-                                        svg_tokens: 640
-                                    output_tokens_details:
-                                        svg_tokens: 768
                         text/event-stream:
                             x-speakeasy-sse-sentinel: "[DONE]"
                             schema:
                                 $ref: "#/components/schemas/SVGStreamEvent"
                             example: |
-                                event: svg_edit.reasoning
-                                data: {"id":"svg-def456","text":"Analyzing the SVG structure to apply the requested color change..."}
+                                event: reasoning
+                                data: {"type":"reasoning","id":"svg-def456","svg":"","text":"Analyzing the SVG structure to apply the requested color change..."}
 
-                                event: svg_edit.draft
-                                data: {"id":"svg-def456","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path fill=\"#000000\"..."}
+                                event: draft
+                                data: {"type":"draft","id":"svg-def456","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path fill=\"#000000\"..."}
 
-                                event: svg_edit.draft
-                                data: {"id":"svg-def456","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path fill=\"#000000\" d=\"M256 32 L300 100 Z\"/></svg>"}
+                                event: draft
+                                data: {"type":"draft","id":"svg-def456","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path fill=\"#000000\" d=\"M256 32 L300 100 Z\"/></svg>"}
 
-                                event: svg_edit.content
-                                data: {"id":"svg-def456","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path fill=\"#000000\" d=\"M256 32 L300 100 Z\"/></svg>","usage":{"total_tokens":1536,"input_tokens":768,"output_tokens":768}}
+                                event: content
+                                data: {"type":"content","id":"svg-def456","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path fill=\"#000000\" d=\"M256 32 L300 100 Z\"/></svg>","usage":{"total_tokens":1536,"input_tokens":768,"output_tokens":768}}
 
                                 data: [DONE]
                 "400":
@@ -569,11 +565,11 @@ paths:
 
                 When `stream` is set to `true`, the response uses a two-phase streaming model:
 
-                1. **Draft phase** (`svg_vectorize.draft` events): Raw SVG chunks are streamed
+                1. **Draft phase** (`draft` events): Raw SVG chunks are streamed
                    in real-time as the model generates them. These provide immediate visual
                    feedback but may not be fully optimized.
 
-                2. **Content phase** (`svg_vectorize.content` event): After the draft is complete,
+                2. **Content phase** (`content` event): After the draft is complete,
                    a refined and optimized SVG is sent as the final result with usage statistics.
             security:
                 - BearerAuth: []
@@ -636,11 +632,6 @@ paths:
                                             total_tokens: 1024
                                             input_tokens: 512
                                             output_tokens: 512
-                                            input_tokens_details:
-                                                text_tokens: 0
-                                                image_tokens: 512
-                                            output_tokens_details:
-                                                svg_tokens: 512
                                 multiple:
                                     summary: Multiple SVGs (n=2)
                                     value:
@@ -655,24 +646,19 @@ paths:
                                             total_tokens: 1800
                                             input_tokens: 700
                                             output_tokens: 1100
-                                            input_tokens_details:
-                                                text_tokens: 0
-                                                image_tokens: 700
-                                            output_tokens_details:
-                                                svg_tokens: 1100
                         text/event-stream:
                             x-speakeasy-sse-sentinel: "[DONE]"
                             schema:
                                 $ref: "#/components/schemas/SVGStreamEvent"
                             example: |
-                                event: svg_vectorize.draft
-                                data: {"id":"svg-xyz789","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M100 50..."}
+                                event: draft
+                                data: {"type":"draft","id":"svg-xyz789","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M100 50..."}
 
-                                event: svg_vectorize.draft
-                                data: {"id":"svg-xyz789","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M100 50 L200 150 Z\"/></svg>"}
+                                event: draft
+                                data: {"type":"draft","id":"svg-xyz789","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M100 50 L200 150 Z\"/></svg>"}
 
-                                event: svg_vectorize.content
-                                data: {"id":"svg-xyz789","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M100 50 L200 150 Z\"/></svg>","usage":{"total_tokens":1024,"input_tokens":512,"output_tokens":512}}
+                                event: content
+                                data: {"type":"content","id":"svg-xyz789","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M100 50 L200 150 Z\"/></svg>","usage":{"total_tokens":1024,"input_tokens":512,"output_tokens":512}}
 
                                 data: [DONE]
                 "400":
@@ -893,10 +879,10 @@ components:
                           title: Text content
                         - type: array
                           description: >-
-                            An array of content parts with a defined type. Can be one or more of type `text`, or exactly one of type `refusal`.
+                              An array of content parts with a defined type. Can be one or more of type `text`, or exactly one of type `refusal`.
                           title: Array of content parts
                           items:
-                            $ref: "#/components/schemas/ChatCompletionRequestAssistantMessageContentPart"
+                              $ref: "#/components/schemas/ChatCompletionRequestAssistantMessageContentPart"
                           minItems: 1
                     nullable: true
                 refusal:
@@ -1014,10 +1000,10 @@ components:
                           title: Text content
                         - type: array
                           description: >-
-                            An array of content parts with a defined type. For system messages, only type `text` is supported.
+                              An array of content parts with a defined type. For system messages, only type `text` is supported.
                           title: Array of content parts
                           items:
-                            $ref: "#/components/schemas/ChatCompletionRequestSystemMessageContentPart"
+                              $ref: "#/components/schemas/ChatCompletionRequestSystemMessageContentPart"
                           minItems: 1
                 role:
                     $ref: "#/components/schemas/ChatCompletionRole"
@@ -1048,10 +1034,10 @@ components:
                           title: Text content
                         - type: array
                           description: >-
-                            An array of content parts with a defined type. Can contain text or image inputs.
+                              An array of content parts with a defined type. Can contain text or image inputs.
                           title: Array of content parts
                           items:
-                            $ref: "#/components/schemas/ChatCompletionRequestUserMessageContentPart"
+                              $ref: "#/components/schemas/ChatCompletionRequestUserMessageContentPart"
                           minItems: 1
                 role:
                     $ref: "#/components/schemas/ChatCompletionRole"
@@ -1096,30 +1082,30 @@ components:
         ChatCompletionStreamOptions:
             anyOf:
                 - description: |
-                    Options for streaming response. Only set this when you set `stream: true`.
+                      Options for streaming response. Only set this when you set `stream: true`.
                   type: object
                   properties:
-                    include_usage:
-                        type: boolean
-                        description: |
-                            If set, an additional chunk will be streamed before the `data: [DONE]`
-                            message. The `usage` field on this chunk shows the token usage statistics
-                            for the entire request, and the `choices` field will always be an empty
-                            array.
+                      include_usage:
+                          type: boolean
+                          description: |
+                              If set, an additional chunk will be streamed before the `data: [DONE]`
+                              message. The `usage` field on this chunk shows the token usage statistics
+                              for the entire request, and the `choices` field will always be an empty
+                              array.
 
-                            All other chunks will also include a `usage` field, but with a null
-                            value. **NOTE:** If the stream is interrupted, you may not receive the
-                            final usage chunk which contains the total token usage for the request.
-                    include_obfuscation:
-                        type: boolean
-                        description: |
-                            When true, stream obfuscation will be enabled. Stream obfuscation adds
-                            random characters to an `obfuscation` field on streaming delta events to
-                            normalize payload sizes as a mitigation to certain side-channel attacks.
-                            These obfuscation fields are included by default, but add a small amount
-                            of overhead to the data stream. You can set `include_obfuscation` to
-                            false to optimize for bandwidth if you trust the network links between
-                            your application and the OpenAI API.
+                              All other chunks will also include a `usage` field, but with a null
+                              value. **NOTE:** If the stream is interrupted, you may not receive the
+                              final usage chunk which contains the total token usage for the request.
+                      include_obfuscation:
+                          type: boolean
+                          description: |
+                              When true, stream obfuscation will be enabled. Stream obfuscation adds
+                              random characters to an `obfuscation` field on streaming delta events to
+                              normalize payload sizes as a mitigation to certain side-channel attacks.
+                              These obfuscation fields are included by default, but add a small amount
+                              of overhead to the data stream. You can set `include_obfuscation` to
+                              false to optimize for bandwidth if you trust the network links between
+                              your application and the OpenAI API.
             nullable: true
             x-omitempty: true
         ChatCompletionStreamResponseDelta:
@@ -1265,106 +1251,106 @@ components:
                 - $ref: "#/components/schemas/CreateModelResponseProperties"
                 - type: object
                   properties:
-                    messages:
-                        description: >
-                            A list of messages comprising the conversation so far.
+                      messages:
+                          description: >
+                              A list of messages comprising the conversation so far.
 
-                        type: array
-                        minItems: 1
-                        items:
-                            $ref: "#/components/schemas/ChatCompletionRequestMessage"
-                    model:
-                        description: >
-                            Model ID used to generate the response.
+                          type: array
+                          minItems: 1
+                          items:
+                              $ref: "#/components/schemas/ChatCompletionRequestMessage"
+                      model:
+                          description: >
+                              Model ID used to generate the response.
 
-                        $ref: "#/components/schemas/ModelIdsShared"
-                    reasoning_effort:
-                        $ref: "#/components/schemas/ReasoningEffort"
-                    frequency_penalty:
-                        type: number
-                        default: 0
-                        minimum: -2
-                        maximum: 2
-                        nullable: true
-                        x-omitempty: true
-                        description: |
-                            Number between -2.0 and 2.0. Positive values penalize new tokens based on
-                            their existing frequency in the text so far, decreasing the model's
-                            likelihood to repeat the same line verbatim.
-                    presence_penalty:
-                        type: number
-                        default: 0
-                        minimum: -2
-                        maximum: 2
-                        x-omitempty: true
-                        nullable: true
-                        description: |
-                            Number between -2.0 and 2.0. Positive values penalize new tokens based on
-                            whether they appear in the text so far, increasing the model's likelihood
-                            to talk about new topics.
-                    top_logprobs:
-                        x-omitempty: true
-                        description: |
-                            An integer between 0 and 20 specifying the number of most likely tokens to
-                            return at each token position, each with an associated log probability.
-                            `logprobs` must be set to `true` if this parameter is used.
-                        type: integer
-                        minimum: 0
-                        maximum: 20
-                        nullable: true
-                    stream:
-                        description: >
-                            If set to true, the model response data will be streamed to the client as it is generated using server-sent events.
+                          $ref: "#/components/schemas/ModelIdsShared"
+                      reasoning_effort:
+                          $ref: "#/components/schemas/ReasoningEffort"
+                      frequency_penalty:
+                          type: number
+                          default: 0
+                          minimum: -2
+                          maximum: 2
+                          nullable: true
+                          x-omitempty: true
+                          description: |
+                              Number between -2.0 and 2.0. Positive values penalize new tokens based on
+                              their existing frequency in the text so far, decreasing the model's
+                              likelihood to repeat the same line verbatim.
+                      presence_penalty:
+                          type: number
+                          default: 0
+                          minimum: -2
+                          maximum: 2
+                          x-omitempty: true
+                          nullable: true
+                          description: |
+                              Number between -2.0 and 2.0. Positive values penalize new tokens based on
+                              whether they appear in the text so far, increasing the model's likelihood
+                              to talk about new topics.
+                      top_logprobs:
+                          x-omitempty: true
+                          description: |
+                              An integer between 0 and 20 specifying the number of most likely tokens to
+                              return at each token position, each with an associated log probability.
+                              `logprobs` must be set to `true` if this parameter is used.
+                          type: integer
+                          minimum: 0
+                          maximum: 20
+                          nullable: true
+                      stream:
+                          description: >
+                              If set to true, the model response data will be streamed to the client as it is generated using server-sent events.
 
-                        type: boolean
-                        default: false
-                        nullable: true
-                        x-go-type-skip-optional-pointer: true
-                    stop:
-                        $ref: "#/components/schemas/StopConfiguration"
-                    logprobs:
-                        x-omitempty: true
-                        description: |
-                            Whether to return log probabilities of the output tokens or not. If true,
-                            returns the log probabilities of each output token returned in the
-                            `content` of `message`.
-                        type: boolean
-                        default: false
-                        nullable: true
-                    max_tokens:
-                        description: |
-                            The maximum number of tokens that can be generated in the
-                            chat completion. This value can be used to control costs for text generated via API.
+                          type: boolean
+                          default: false
+                          nullable: true
+                          x-go-type-skip-optional-pointer: true
+                      stop:
+                          $ref: "#/components/schemas/StopConfiguration"
+                      logprobs:
+                          x-omitempty: true
+                          description: |
+                              Whether to return log probabilities of the output tokens or not. If true,
+                              returns the log probabilities of each output token returned in the
+                              `content` of `message`.
+                          type: boolean
+                          default: false
+                          nullable: true
+                      max_tokens:
+                          description: |
+                              The maximum number of tokens that can be generated in the
+                              chat completion. This value can be used to control costs for text generated via API.
 
-                            This value is now deprecated in favor of `max_completion_tokens`.
-                        type: integer
-                        nullable: true
-                        x-omitempty: true
-                        deprecated: true
-                    max_completion_tokens:
-                        description: |
-                            An upper bound for the number of tokens that can be generated for a completion,
-                            including visible output tokens and reasoning tokens.
-                        type: integer
-                        nullable: true
-                        x-omitempty: true
-                    seed:
-                        type: integer
-                        nullable: true
-                        x-omitempty: true
-                        deprecated: true
-                        description: >
-                            This feature is in Beta.
+                              This value is now deprecated in favor of `max_completion_tokens`.
+                          type: integer
+                          nullable: true
+                          x-omitempty: true
+                          deprecated: true
+                      max_completion_tokens:
+                          description: |
+                              An upper bound for the number of tokens that can be generated for a completion,
+                              including visible output tokens and reasoning tokens.
+                          type: integer
+                          nullable: true
+                          x-omitempty: true
+                      seed:
+                          type: integer
+                          nullable: true
+                          x-omitempty: true
+                          deprecated: true
+                          description: >
+                              This feature is in Beta.
 
-                            If specified, our system will make a best effort to sample deterministically, such that repeated requests with the same `seed` and parameters should return the same result.
+                              If specified, our system will make a best effort to sample deterministically, such that repeated requests with the same `seed` and parameters should return the same result.
 
-                            Determinism is not guaranteed.
+                              Determinism is not guaranteed.
 
-                    stream_options:
-                        $ref: "#/components/schemas/ChatCompletionStreamOptions"
+                      stream_options:
+                          $ref: "#/components/schemas/ChatCompletionStreamOptions"
                   required:
-                    - model
-                    - messages
+                      - model
+                      - messages
         CreateChatCompletionResponse:
             type: object
             description: Represents a chat completion response returned by model, based on the provided input.
@@ -1527,13 +1513,13 @@ components:
                 - $ref: "#/components/schemas/ModelResponseProperties"
                 - type: object
                   properties:
-                    top_logprobs:
-                        description: |
-                            An integer between 0 and 20 specifying the number of most likely tokens to
-                            return at each token position, each with an associated log probability.
-                        type: integer
-                        minimum: 0
-                        maximum: 20
+                      top_logprobs:
+                          description: |
+                              An integer between 0 and 20 specifying the number of most likely tokens to
+                              return at each token position, each with an associated log probability.
+                          type: integer
+                          minimum: 0
+                          maximum: 20
         ModelIdsShared:
             type: string
             enum:
@@ -1612,8 +1598,8 @@ components:
                   minItems: 1
                   maxItems: 4
                   items:
-                    type: string
-                    example: '["\n"]'
+                      type: string
+                      example: '["\n"]'
         # SVG and Model Schemas
         Error:
             type: object
@@ -1657,30 +1643,6 @@ components:
                     type: integer
                     description: Number of tokens in the output
                     example: 768
-                input_tokens_details:
-                    type: object
-                    description: Breakdown of input tokens by type
-                    properties:
-                        text_tokens:
-                            type: integer
-                            description: Number of text tokens in the input
-                            example: 128
-                        image_tokens:
-                            type: integer
-                            description: Number of image tokens in the input
-                            example: 128
-                        svg_tokens:
-                            type: integer
-                            description: Number of SVG tokens in the input
-                            example: 128
-                output_tokens_details:
-                    type: object
-                    description: Breakdown of output tokens by type
-                    properties:
-                        svg_tokens:
-                            type: integer
-                            description: Number of SVG tokens in the output
-                            example: 768
         Model:
             title: Model
             description: |
@@ -1747,13 +1709,21 @@ components:
                     description: API operations supported by this model.
                     items:
                         $ref: "#/components/schemas/SupportedOperation"
-                    example: ["svg_generate", "svg_edit", "svg_animate", "svg_vectorize", "chat_completions"]
+                    example: ["chat_completions"]
                 supported_sampling_parameters:
                     type: array
                     description: Sampling parameters supported by the model.
                     items:
                         $ref: "#/components/schemas/SamplingParameter"
-                    example: ["temperature", "top_p", "stop", "frequency_penalty", "presence_penalty", "seed"]
+                    example:
+                        [
+                            "temperature",
+                            "top_p",
+                            "stop",
+                            "frequency_penalty",
+                            "presence_penalty",
+                            "seed",
+                        ]
         Modality:
             type: string
             description: Input/output modality type.
@@ -1890,6 +1860,7 @@ components:
                     description: If true, responses are streamed as Server-Sent Events
                     example: false
                     default: false
+                    x-go-type-skip-optional-pointer: true
                 temperature:
                     type: number
                     description: Sampling temperature
@@ -1933,26 +1904,26 @@ components:
                 - $ref: "#/components/schemas/SVGRequestBase"
                 - type: object
                   required:
-                    - prompt
+                      - prompt
                   properties:
-                    prompt:
-                        type: string
-                        description: The main text prompt describing the desired SVG
-                        example: Generate an icon of a unicorn
-                    instructions:
-                        type: string
-                        description: Additional instructions for the model
-                        example: Create a minimal, modern icon
-                    references:
-                        type: array
-                        maxItems: 4
-                        description: |
-                            Optional reference images to guide style/composition.
-                            Maximum of 4 images.
-                        items:
-                            $ref: "#/components/schemas/ImageInputReference"
-                    aspect_ratio:
-                        $ref: "#/components/schemas/AspectRatio"
+                      prompt:
+                          type: string
+                          description: The main text prompt describing the desired SVG
+                          example: Generate an icon of a unicorn
+                      instructions:
+                          type: string
+                          description: Additional instructions for the model
+                          example: Create a minimal, modern icon
+                      references:
+                          type: array
+                          maxItems: 4
+                          description: |
+                              Optional reference images to guide style/composition.
+                              Maximum of 4 images.
+                          items:
+                              $ref: "#/components/schemas/ImageInputReference"
+                      aspect_ratio:
+                          $ref: "#/components/schemas/AspectRatio"
         EditSVGRequest:
             type: object
             description: Not Implemented
@@ -2026,28 +1997,28 @@ components:
                 - $ref: "#/components/schemas/SVGRequestBase"
                 - type: object
                   required:
-                    - image
+                      - image
                   properties:
-                    image:
-                        $ref: "#/components/schemas/ImageInputReference"
-                        description: The source image to vectorize (exactly one required)
-                    simplify_if_needed:
-                        type: boolean
-                        description: |
-                            If true, the image is analyzed for vectorizability. Images deemed
-                            unsuitable (e.g., photos with complex textures) are automatically
-                            simplified before vectorization to improve results.
-                        default: false
-                        example: true
-                    auto_crop:
-                        type: boolean
-                        description: |
-                            If true, the image is automatically cropped to the subject before vectorization.
-                            This can improve results for images with large amounts of empty space or
-                            distracting backgrounds. We generally recommend users to crop their images
-                            manually for best results.
-                        default: false
-                        example: true
+                      image:
+                          $ref: "#/components/schemas/ImageInputReference"
+                          description: The source image to vectorize (exactly one required)
+                      simplify_if_needed:
+                          type: boolean
+                          description: |
+                              If true, the image is analyzed for vectorizability. Images deemed
+                              unsuitable (e.g., photos with complex textures) are automatically
+                              simplified before vectorization to improve results.
+                          default: false
+                          example: true
+                      auto_crop:
+                          type: boolean
+                          description: |
+                              If true, the image is automatically cropped to the subject before vectorization.
+                              This can improve results for images with large amounts of empty space or
+                              distracting backgrounds. We generally recommend users to crop their images
+                              manually for best results.
+                          default: false
+                          example: true
         VectorizabilityCheckRequest:
             type: object
             required:
@@ -2071,316 +2042,34 @@ components:
             type: object
             description: Not Implemented
         SVGStreamEvent:
+            type: object
             description: |
                 Streaming event for SVG operations (SSE format).
                 Events flow in up to three phases:
                 1. `*.reasoning` - Model thinking about design approach (create/edit/animate only)
                 2. `*.draft` - Streaming partial SVG chunks as generated
                 3. `*.content` - Final postprocessed, optimized SVG
-            oneOf:
-                # Create events (has reasoning)
-                - $ref: "#/components/schemas/SVGGenerateReasoningEvent"
-                - $ref: "#/components/schemas/SVGGenerateDraftEvent"
-                - $ref: "#/components/schemas/SVGGenerateContentEvent"
-                # Vectorize events (no reasoning - just tracing)
-                - $ref: "#/components/schemas/SVGVectorizeDraftEvent"
-                - $ref: "#/components/schemas/SVGVectorizeContentEvent"
-                # Edit events (has reasoning)
-                - $ref: "#/components/schemas/SVGEditReasoningEvent"
-                - $ref: "#/components/schemas/SVGEditDraftEvent"
-                - $ref: "#/components/schemas/SVGEditContentEvent"
-                # Animate events (has reasoning)
-                - $ref: "#/components/schemas/SVGAnimateReasoningEvent"
-                - $ref: "#/components/schemas/SVGAnimateDraftEvent"
-                - $ref: "#/components/schemas/SVGAnimateContentEvent"
-            discriminator:
-                propertyName: event
-                mapping:
-                    svg_generate.reasoning: "#/components/schemas/SVGGenerateReasoningEvent"
-                    svg_generate.draft: "#/components/schemas/SVGGenerateDraftEvent"
-                    svg_generate.content: "#/components/schemas/SVGGenerateContentEvent"
-                    svg_vectorize.draft: "#/components/schemas/SVGVectorizeDraftEvent"
-                    svg_vectorize.content: "#/components/schemas/SVGVectorizeContentEvent"
-                    svg_edit.reasoning: "#/components/schemas/SVGEditReasoningEvent"
-                    svg_edit.draft: "#/components/schemas/SVGEditDraftEvent"
-                    svg_edit.content: "#/components/schemas/SVGEditContentEvent"
-                    svg_animate.reasoning: "#/components/schemas/SVGAnimateReasoningEvent"
-                    svg_animate.draft: "#/components/schemas/SVGAnimateDraftEvent"
-                    svg_animate.content: "#/components/schemas/SVGAnimateContentEvent"
-        # ============================================================================
-        # Create Events (for /v1/svg - has reasoning)
-        # ============================================================================
-        SVGGenerateReasoningEvent:
-            type: object
-            description: Model reasoning about SVG design approach.
             required:
-                - event
-                - data
+                - type
+                - id
+                - svg
             properties:
-                event:
+                type:
                     type: string
-                    const: svg_generate.reasoning
-                data:
-                    type: object
-                    required:
-                        - id
-                        - text
-                    properties:
-                        id:
-                            type: string
-                            description: A unique identifier for the SVG generation.
-                            example: svg-abc123
-                        text:
-                            type: string
-                            description: Reasoning text about design decisions.
-        SVGGenerateDraftEvent:
-            type: object
-            description: Streaming partial SVG chunks as generated by the model.
-            required:
-                - event
-                - data
-            properties:
-                event:
+                    description: The event type indicating the operation and phase.
+                    enum:
+                        - reasoning
+                        - draft
+                        - content
+                    example: content
+                id:
                     type: string
-                    const: svg_generate.draft
-                data:
-                    type: object
-                    required:
-                        - id
-                        - svg
-                    properties:
-                        id:
-                            type: string
-                            description: A unique identifier for the SVG generation.
-                            example: svg-abc123
-                        svg:
-                            type: string
-                            description: Partial SVG markup during streaming.
-        SVGGenerateContentEvent:
-            type: object
-            description: Final postprocessed, optimized SVG.
-            required:
-                - event
-                - data
-            properties:
-                event:
+                    description: A unique identifier for the SVG operation.
+                    example: svg-abc123
+                svg:
                     type: string
-                    const: svg_generate.content
-                data:
-                    type: object
-                    required:
-                        - id
-                        - svg
-                    properties:
-                        id:
-                            type: string
-                            description: A unique identifier for the SVG generation.
-                            example: svg-abc123
-                        svg:
-                            type: string
-                            description: Complete, optimized SVG markup.
-                        usage:
-                            $ref: "#/components/schemas/Usage"
-                            description: Token usage statistics.
-        # ============================================================================
-        # Vectorize Events (for /v1/svg/vectorizations - NO reasoning, just tracing)
-        # ============================================================================
-        SVGVectorizeDraftEvent:
-            type: object
-            description: Streaming partial SVG chunks during image vectorization.
-            required:
-                - event
-                - data
-            properties:
-                event:
-                    type: string
-                    const: svg_vectorize.draft
-                data:
-                    type: object
-                    required:
-                        - id
-                        - svg
-                    properties:
-                        id:
-                            type: string
-                            description: A unique identifier for the vectorization.
-                            example: svg-xyz789
-                        svg:
-                            type: string
-                            description: Partial SVG markup during vectorization.
-        SVGVectorizeContentEvent:
-            type: object
-            description: Final postprocessed, optimized vectorized SVG.
-            required:
-                - event
-                - data
-            properties:
-                event:
-                    type: string
-                    const: svg_vectorize.content
-                data:
-                    type: object
-                    required:
-                        - id
-                        - svg
-                    properties:
-                        id:
-                            type: string
-                            description: A unique identifier for the vectorization.
-                            example: svg-xyz789
-                        svg:
-                            type: string
-                            description: Complete, optimized vectorized SVG markup.
-                        usage:
-                            $ref: "#/components/schemas/Usage"
-                            description: Token usage statistics.
-        # ============================================================================
-        # Edit Events (for /v1/svg/edits - has reasoning)
-        # ============================================================================
-        SVGEditReasoningEvent:
-            type: object
-            description: Model reasoning about SVG edit approach.
-            required:
-                - event
-                - data
-            properties:
-                event:
-                    type: string
-                    const: svg_edit.reasoning
-                data:
-                    type: object
-                    required:
-                        - id
-                        - text
-                    properties:
-                        id:
-                            type: string
-                            description: A unique identifier for the SVG edit.
-                            example: svg-def456
-                        text:
-                            type: string
-                            description: Reasoning text about edit decisions.
-        SVGEditDraftEvent:
-            type: object
-            description: Streaming partial SVG chunks during editing.
-            required:
-                - event
-                - data
-            properties:
-                event:
-                    type: string
-                    const: svg_edit.draft
-                data:
-                    type: object
-                    required:
-                        - id
-                        - svg
-                    properties:
-                        id:
-                            type: string
-                            description: A unique identifier for the SVG edit.
-                            example: svg-def456
-                        svg:
-                            type: string
-                            description: Partial SVG markup during editing.
-        SVGEditContentEvent:
-            type: object
-            description: Final postprocessed, optimized edited SVG.
-            required:
-                - event
-                - data
-            properties:
-                event:
-                    type: string
-                    const: svg_edit.content
-                data:
-                    type: object
-                    required:
-                        - id
-                        - svg
-                    properties:
-                        id:
-                            type: string
-                            description: A unique identifier for the SVG edit.
-                            example: svg-def456
-                        svg:
-                            type: string
-                            description: Complete edited SVG markup.
-                        usage:
-                            $ref: "#/components/schemas/Usage"
-                            description: Token usage statistics.
-        # ============================================================================
-        # Animate Events (for /v1/svg/animations - has reasoning)
-        # ============================================================================
-        SVGAnimateReasoningEvent:
-            type: object
-            description: Model reasoning about SVG animation approach.
-            required:
-                - event
-                - data
-            properties:
-                event:
-                    type: string
-                    const: svg_animate.reasoning
-                data:
-                    type: object
-                    required:
-                        - id
-                        - text
-                    properties:
-                        id:
-                            type: string
-                            description: A unique identifier for the SVG animation.
-                            example: svg-ghi789
-                        text:
-                            type: string
-                            description: Reasoning text about animation decisions.
-        SVGAnimateDraftEvent:
-            type: object
-            description: Streaming partial SVG chunks during animation generation.
-            required:
-                - event
-                - data
-            properties:
-                event:
-                    type: string
-                    const: svg_animate.draft
-                data:
-                    type: object
-                    required:
-                        - id
-                        - svg
-                    properties:
-                        id:
-                            type: string
-                            description: A unique identifier for the SVG animation.
-                            example: svg-ghi789
-                        svg:
-                            type: string
-                            description: Partial animated SVG markup.
-        SVGAnimateContentEvent:
-            type: object
-            description: Final postprocessed, optimized animated SVG.
-            required:
-                - event
-                - data
-            properties:
-                event:
-                    type: string
-                    const: svg_animate.content
-                data:
-                    type: object
-                    required:
-                        - id
-                        - svg
-                    properties:
-                        id:
-                            type: string
-                            description: A unique identifier for the SVG animation.
-                            example: svg-ghi789
-                        svg:
-                            type: string
-                            description: Complete animated SVG markup.
-                        usage:
-                            $ref: "#/components/schemas/Usage"
-                            description: Token usage statistics.
+                    description: The SVG markup (partial during draft, complete during content).
+                    example: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
+                usage:
+                    $ref: "#/components/schemas/Usage"
+                    description: Token usage statistics. Only present in content events.
