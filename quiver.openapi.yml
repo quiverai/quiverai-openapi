@@ -1,9 +1,9 @@
 openapi: 3.1.0
 info:
-    title: Quiver Arrow API
+    title: QuiverAI API
     version: 1.0.0
     description: |
-        The Quiver Arrow API enables developers to generate and edit SVG graphics using AI,
+        The QuiverAI API enables developers to generate and edit SVG graphics using AI,
         as well as create chat completions with OpenAI-compatible endpoints.
         The API provides endpoints for model discovery, chat completions, and SVG generation/editing
         with support for streaming responses.
@@ -11,7 +11,7 @@ info:
         name: Quiver API Support
         url: https://quiver.ai/support
 servers:
-    - url: https://api.quiver.ai/v1
+    - url: https://api.quiver.ai
       description: Production server
 security:
     - BearerAuth: []
@@ -20,11 +20,16 @@ tags:
       description: Given a list of messages comprising a conversation, the model will return a response.
     - name: Models
       description: Operations for listing and retrieving available models
-    - name: SVG
-      description: Operations for generating and editing SVG graphics
+    - name: Create SVGs
+      description: Generate SVG graphics from text prompts, reference images, or raster images
+    - name: Modify SVGs
+      description: Edit or animate existing SVG graphics
+    - name: SVG Utilities
+      description: Helper operations for SVG workflows
 paths:
-    /chat/completions:
+    /v1/chat/completions:
         post:
+            x-hidden: true
             x-speakeasy-ignore: true
             operationId: createChatCompletion
             tags:
@@ -48,7 +53,7 @@ paths:
                                 $ref: "#/components/schemas/CreateChatCompletionStreamResponse"
             description: |
                 Creates a model response for the given chat conversation.
-    /models:
+    /v1/models:
         get:
             operationId: listModels
             tags:
@@ -82,32 +87,45 @@ paths:
                                           completion: "0.000002"
                                           image: "0.00001"
                                       supported_operations:
-                                          - svg_generate
-                                          - svg_edit
-                                          - svg_animate
-                                          - svg_collections
                                           - chat_completions
-                                      svg_capabilities:
-                                          supported_modes:
-                                              ["icon", "illustration", "logo"]
-                                          supported_styles:
-                                              [
-                                                  "flat",
-                                                  "outline",
-                                                  "duotone",
-                                                  "gradient",
-                                              ]
-                                          max_complexity: 4
-                                          recommended_viewbox_sizes:
-                                              [24, 48, 64, 128, 256, 512]
                                       supported_sampling_parameters:
                                           [
                                               "temperature",
                                               "top_p",
                                               "stop",
+                                              "frequency_penalty",
+                                              "presence_penalty",
                                               "seed",
                                           ]
-    /models/{model}:
+                "401":
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                            examples:
+                                invalid-api-key:
+                                    summary: Missing or invalid API key
+                                    value:
+                                        type: authentication_error
+                                        message: Missing or invalid API key
+                                        code: invalid_api_key
+                                        param: null
+                "429":
+                    description: Rate limit exceeded
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                            examples:
+                                rate-limit-exceeded:
+                                    summary: Too many requests
+                                    value:
+                                        type: rate_limit_error
+                                        message: Rate limit exceeded. Please try again later.
+                                        code: rate_limit_exceeded
+                                        param: null
+    /v1/models/{model}:
         get:
             operationId: retrieveModel
             tags:
@@ -132,54 +150,111 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Model"
-                            example:
-                                id: arrow-0.5
-                                object: model
-                                name: "Arrow 0.5"
-                                description: "Optimized for high-quality icon and illustration generation"
-                                created: 1704067200
-                                owned_by: quiver
-                                input_modalities: ["text", "image"]
-                                output_modalities: ["svg"]
-                                context_length: 128000
-                                max_output_length: 16384
-                                pricing:
-                                    prompt: "0.000001"
-                                    completion: "0.000002"
-                                    image: "0.00001"
-                                supported_operations:
-                                    - svg_generate
-                                    - svg_edit
-                                    - svg_animate
-                                    - svg_collections
-                                    - chat_completions
-                                svg_capabilities:
-                                    supported_modes:
-                                        ["icon", "illustration", "logo"]
-                                    supported_styles:
-                                        [
-                                            "flat",
-                                            "outline",
-                                            "duotone",
-                                            "gradient",
-                                        ]
-                                    max_complexity: 4
-                                    recommended_viewbox_sizes:
-                                        [24, 48, 64, 128, 256, 512]
-                                supported_sampling_parameters:
-                                    ["temperature", "top_p", "stop", "seed"]
+                            examples:
+                                arrow-0.5:
+                                    summary: Arrow 0.5 (stable)
+                                    value:
+                                        id: arrow-0.5
+                                        object: model
+                                        name: "Arrow 0.5"
+                                        description: "Optimized for high-quality icon and illustration generation"
+                                        created: 1704067200
+                                        owned_by: quiver
+                                        input_modalities: ["text", "image"]
+                                        output_modalities: ["svg"]
+                                        context_length: 128000
+                                        max_output_length: 16384
+                                        pricing:
+                                            prompt: "0.000001"
+                                            completion: "0.000002"
+                                            image: "0.00001"
+                                        supported_operations:
+                                            - chat_completions
+                                        supported_sampling_parameters:
+                                            [
+                                                "temperature",
+                                                "top_p",
+                                                "stop",
+                                                "frequency_penalty",
+                                                "presence_penalty",
+                                                "seed",
+                                            ]
+                                arrow-0.5-preview:
+                                    summary: Arrow 0.5 Preview
+                                    value:
+                                        id: arrow-0.5-preview
+                                        object: model
+                                        name: "Arrow 0.5 Preview"
+                                        description: "Preview build of Arrow 0.5 with latest improvements"
+                                        created: 1704067200
+                                        owned_by: quiver
+                                        input_modalities: ["text", "image"]
+                                        output_modalities: ["svg"]
+                                        context_length: 128000
+                                        max_output_length: 16384
+                                        pricing:
+                                            prompt: "0.000001"
+                                            completion: "0.000002"
+                                            image: "0.00001"
+                                        supported_operations:
+                                            - chat_completions
+                                        supported_sampling_parameters:
+                                            [
+                                                "temperature",
+                                                "top_p",
+                                                "stop",
+                                                "frequency_penalty",
+                                                "presence_penalty",
+                                                "seed",
+                                            ]
                 "404":
                     description: Model not found
                     content:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-    /svg/generate:
+                            examples:
+                                model-not-found:
+                                    summary: Unknown model ID
+                                    value:
+                                        type: invalid_request_error
+                                        message: Model 'arrow-9.9' does not exist
+                                        code: model_not_found
+                                        param: model
+                "401":
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                            examples:
+                                invalid-api-key:
+                                    summary: Missing or invalid API key
+                                    value:
+                                        type: authentication_error
+                                        message: Missing or invalid API key
+                                        code: invalid_api_key
+                                        param: null
+                "429":
+                    description: Rate limit exceeded
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                            examples:
+                                rate-limit-exceeded:
+                                    summary: Too many requests
+                                    value:
+                                        type: rate_limit_error
+                                        message: Rate limit exceeded. Please try again later.
+                                        code: rate_limit_exceeded
+                                        param: null
+    /v1/svgs/generations:
         post:
-            operationId: createSVGGeneration
+            operationId: generateSVG
             tags:
-                - SVG
-            summary: Generate SVGs
+                - Create SVGs
+            summary: Text to SVG
             description: |
                 Generates one or more SVG graphics based on a text prompt and optional
                 reference images. Supports streaming for real-time progressive rendering.
@@ -193,63 +268,46 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: "#/components/schemas/QuiverMessage"
+                            $ref: "#/components/schemas/GenerateSVGRequest"
                         examples:
                             basic:
                                 summary: Basic SVG generation
                                 value:
                                     model: arrow-0.5
-                                    input:
-                                        prompt: Generate an icon of a unicorn
-                                        geometry:
-                                            width: 512
-                                            height: 512
-                            advanced:
-                                summary: Advanced generation with styling and references
+                                    stream: false
+                                    prompt: Generate an icon of a unicorn
+                            all-params:
+                                summary: Non-streaming generation using all optional parameters (includes deprecated seed)
                                 value:
                                     model: arrow-0.5
+                                    stream: false
+                                    prompt: Generate a minimalist unicorn icon for a SaaS dashboard
+                                    instructions: Use a flat monochrome style with rounded corners and clean geometry. Avoid gradients. Return only SVG markup.
+                                    aspect_ratio: "1:1"
+                                    n: 2
+                                    temperature: 0.4
+                                    top_p: 0.95
+                                    max_output_tokens: 4096
+                                    frequency_penalty: 0.1
+                                    presence_penalty: 0.2
+                                    seed: 42
+                                    references:
+                                        - url: https://example.com/uploads/reference-style.png
+                                        - base64: iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==
+                            streaming:
+                                summary: Streaming generation (SSE) with references and styling
+                                value:
+                                    model: arrow-0.5
+                                    stream: true
                                     n: 2
                                     top_p: 1
                                     max_output_tokens: 2560
-                                    stream: true
                                     temperature: 0.8
-                                    input:
-                                        instructions: Create a minimal, modern icon
-                                        prompt: Generate an icon of a unicorn
-                                        references:
-                                            - url: https://example.com/uploads/source1.png
-                                    svg_params:
-                                        mode: icon
-                                        canvas:
-                                            view_box:
-                                                width: 24
-                                                height: 24
-                                            safe_zone:
-                                                mode: relative
-                                                value: 0.1
-                                                overrides:
-                                                    bottom: 0.15
-                                        design:
-                                            style_preset: outline
-                                            complexity: 2
-                                            include_background: false
-                                            stroke_width: 1.5
-                                            colors:
-                                                max_colors: 4
-                                                use_gradients: false
-                                                palette:
-                                                    - "#12FBA2"
-                                                    - "#1A1A1A"
-                                                    - "#FFFFFF"
-                                                roles:
-                                                    background:
-                                                        - "#FFFFFF"
-                                                    primary:
-                                                        - "#1A1A1A"
-                                                    accent:
-                                                        - "#12FBA2"
-                                                adherence: tints_and_shades
-                                                allow_opacity: true
+                                    instructions: Create a minimal, modern icon
+                                    prompt: Generate an icon of a unicorn
+                                    references:
+                                        - url: https://example.com/uploads/source1.png
+                                    aspect_ratio: "1:1"
             responses:
                 "200":
                     description: OK
@@ -257,36 +315,49 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/SVGResponse"
-                            example:
-                                created: 1704067200
-                                data:
-                                    - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
-                                      mime_type: image/svg+xml
-                                usage:
-                                    total_tokens: 1024
-                                    input_tokens: 256
-                                    output_tokens: 768
-                                    input_tokens_details:
-                                        text_tokens: 128
-                                        image_tokens: 128
-                                    output_tokens_details:
-                                        svg_tokens: 768
+                            examples:
+                                single:
+                                    summary: Single SVG (n=1)
+                                    value:
+                                        id: svg-abc123
+                                        created: 1704067200
+                                        data:
+                                            - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
+                                              mime_type: image/svg+xml
+                                        usage:
+                                            total_tokens: 1024
+                                            input_tokens: 256
+                                            output_tokens: 768
+                                multiple:
+                                    summary: Multiple SVGs (n=2)
+                                    value:
+                                        id: svg-abc123
+                                        created: 1704067200
+                                        data:
+                                            - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
+                                              mime_type: image/svg+xml
+                                            - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
+                                              mime_type: image/svg+xml
+                                        usage:
+                                            total_tokens: 1800
+                                            input_tokens: 300
+                                            output_tokens: 1500
                         text/event-stream:
                             x-speakeasy-sse-sentinel: "[DONE]"
                             schema:
                                 $ref: "#/components/schemas/SVGStreamEvent"
                             example: |
-                                event: svg_generate.reasoning
-                                data: {"id":"svg-abc123","text":"Creating a minimalist icon with clean geometric shapes..."}
+                                event: reasoning
+                                data: {"type":"reasoning","id":"svg-abc123","svg":"","text":"Creating a minimalist icon with clean geometric shapes..."}
 
-                                event: svg_generate.draft
-                                data: {"id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32..."}
+                                event: draft
+                                data: {"type":"draft","id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32..."}
 
-                                event: svg_generate.draft
-                                data: {"id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32 L300 100 Z\"/></svg>"}
+                                event: draft
+                                data: {"type":"draft","id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32 L300 100 Z\"/></svg>"}
 
-                                event: svg_generate.content
-                                data: {"id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32 L300 100 Z\"/></svg>","usage":{"total_tokens":1024,"input_tokens":256,"output_tokens":768}}
+                                event: content
+                                data: {"type":"content","id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32 L300 100 Z\"/></svg>","usage":{"total_tokens":1024,"input_tokens":256,"output_tokens":768}}
 
                                 data: [DONE]
                 "400":
@@ -295,28 +366,54 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                            examples:
+                                invalid-prompt:
+                                    summary: Prompt is missing or invalid
+                                    value:
+                                        type: invalid_request_error
+                                        message: "`prompt` must be a non-empty string"
+                                        code: invalid_prompt
+                                        param: prompt
                 "401":
                     description: Unauthorized
                     content:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                            examples:
+                                invalid-api-key:
+                                    summary: Missing or invalid API key
+                                    value:
+                                        type: authentication_error
+                                        message: Missing or invalid API key
+                                        code: invalid_api_key
+                                        param: null
                 "429":
                     description: Rate limit exceeded
                     content:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-    /svg/edits:
+                            examples:
+                                rate-limit-exceeded:
+                                    summary: Too many requests
+                                    value:
+                                        type: rate_limit_error
+                                        message: Rate limit exceeded. Please try again later.
+                                        code: rate_limit_exceeded
+                                        param: null
+    /v1/svgs/edits:
         post:
-            operationId: createSVGEdit
+            operationId: editSVG
             tags:
-                - SVG
+                - Modify SVGs
             summary: Edit SVGs
             description: |
                 Edits an existing SVG graphic based on a text prompt and optional
                 reference images. The source SVG can be provided as an inline string
                 or URL. Supports streaming for real-time progressive rendering.
+
+                **NOTE: This endpoint is currently not implemented.**
 
                 When `stream` is set to `true`, the response will be sent as Server-Sent
                 Events (SSE) with partial SVG updates followed by a final completion event.
@@ -328,41 +425,13 @@ paths:
                     application/json:
                         schema:
                             $ref: "#/components/schemas/EditSVGRequest"
-                        examples:
-                            basic:
-                                summary: Basic SVG edit with inline source
-                                value:
-                                    model: arrow-0.5
-                                    input:
-                                        prompt: Make the unicorn more colorful
-                                        source:
-                                            svg: <svg xmlns="http://www.w3.org/2000/svg">...</svg>
-                            url-source:
-                                summary: Edit using SVG from URL
-                                value:
-                                    model: arrow-0.5
-                                    input:
-                                        prompt: Simplify the design and use fewer paths
-                                        source:
-                                            svg_url: https://example.com/source.svg
-                                        constraints:
-                                            max_paths: 64
-                            streaming:
-                                summary: Streaming edit with style modifications
-                                value:
-                                    model: arrow-0.5
-                                    stream: true
-                                    temperature: 0.7
-                                    input:
-                                        prompt: Convert to a duotone style
-                                        source:
-                                            svg: <svg xmlns="http://www.w3.org/2000/svg">...</svg>
-                                        style:
-                                            preset: duotone-minimal
-                                            palette:
-                                                - "#000000"
-                                                - "#FF6B6B"
             responses:
+                "501":
+                    description: Not Implemented
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
                 "200":
                     description: OK
                     content:
@@ -370,6 +439,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/SVGResponse"
                             example:
+                                id: svg-def456
                                 created: 1704067200
                                 data:
                                     - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
@@ -378,28 +448,22 @@ paths:
                                     total_tokens: 1536
                                     input_tokens: 768
                                     output_tokens: 768
-                                    input_tokens_details:
-                                        text_tokens: 128
-                                        image_tokens: 0
-                                        svg_tokens: 640
-                                    output_tokens_details:
-                                        svg_tokens: 768
                         text/event-stream:
                             x-speakeasy-sse-sentinel: "[DONE]"
                             schema:
                                 $ref: "#/components/schemas/SVGStreamEvent"
                             example: |
-                                event: svg_edit.reasoning
-                                data: {"id":"svg-def456","text":"Analyzing the SVG structure to apply the requested color change..."}
+                                event: reasoning
+                                data: {"type":"reasoning","id":"svg-def456","svg":"","text":"Analyzing the SVG structure to apply the requested color change..."}
 
-                                event: svg_edit.draft
-                                data: {"id":"svg-def456","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path fill=\"#000000\"..."}
+                                event: draft
+                                data: {"type":"draft","id":"svg-def456","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path fill=\"#000000\"..."}
 
-                                event: svg_edit.draft
-                                data: {"id":"svg-def456","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path fill=\"#000000\" d=\"M256 32 L300 100 Z\"/></svg>"}
+                                event: draft
+                                data: {"type":"draft","id":"svg-def456","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path fill=\"#000000\" d=\"M256 32 L300 100 Z\"/></svg>"}
 
-                                event: svg_edit.content
-                                data: {"id":"svg-def456","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path fill=\"#000000\" d=\"M256 32 L300 100 Z\"/></svg>","usage":{"total_tokens":1536,"input_tokens":768,"output_tokens":768}}
+                                event: content
+                                data: {"type":"content","id":"svg-def456","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path fill=\"#000000\" d=\"M256 32 L300 100 Z\"/></svg>","usage":{"total_tokens":1536,"input_tokens":768,"output_tokens":768}}
 
                                 data: [DONE]
                 "400":
@@ -420,16 +484,18 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-    /svg/animate:
+    /v1/svgs/animations:
         post:
-            operationId: createSVGAnimation
+            operationId: animateSVG
             tags:
-                - SVG
+                - Modify SVGs
             summary: Animate SVGs
             description: |
                 Adds CSS animations to an existing SVG graphic based on a motion prompt.
                 The source SVG can be provided as an inline string or URL.
                 Supports streaming for real-time progressive rendering.
+
+                **NOTE: This endpoint is currently not implemented.**
 
                 When `stream` is set to `true`, the response will be sent as Server-Sent
                 Events (SSE) with partial SVG updates followed by a final completion event.
@@ -441,27 +507,13 @@ paths:
                     application/json:
                         schema:
                             $ref: "#/components/schemas/AnimateSVGRequest"
-                        examples:
-                            basic:
-                                summary: Basic SVG animation
-                                value:
-                                    model: arrow-0.5
-                                    input:
-                                        motion_prompt: Add a gentle floating animation
-                                        source:
-                                            svg: <svg xmlns="http://www.w3.org/2000/svg">...</svg>
-                            advanced:
-                                summary: Animation with custom duration and easing
-                                value:
-                                    model: arrow-0.5
-                                    stream: true
-                                    duration: 3
-                                    easing: ease-in-out
-                                    input:
-                                        motion_prompt: Make the icon pulse and rotate slowly
-                                        source:
-                                            svg_url: https://example.com/icon.svg
             responses:
+                "501":
+                    description: Not Implemented
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
                 "200":
                     description: OK
                     content:
@@ -469,6 +521,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/SVGResponse"
                             example:
+                                id: svg-ghi789
                                 created: 1704067200
                                 data:
                                     - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><style>@keyframes float{...}</style>...</svg>
@@ -499,12 +552,12 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-    /svg/vectorize:
+    /v1/svgs/vectorizations:
         post:
-            operationId: createSVGVectorization
+            operationId: vectorizeSVG
             tags:
-                - SVG
-            summary: Vectorize image to SVG
+                - Create SVGs
+            summary: Image to SVG
             description: |
                 Converts a raster image (PNG, JPEG, WebP) into an SVG graphic.
                 Requires exactly one input image. Supports streaming for real-time
@@ -512,11 +565,11 @@ paths:
 
                 When `stream` is set to `true`, the response uses a two-phase streaming model:
 
-                1. **Draft phase** (`svg_vectorize.draft` events): Raw SVG chunks are streamed
+                1. **Draft phase** (`draft` events): Raw SVG chunks are streamed
                    in real-time as the model generates them. These provide immediate visual
                    feedback but may not be fully optimized.
 
-                2. **Content phase** (`svg_vectorize.content` event): After the draft is complete,
+                2. **Content phase** (`content` event): After the draft is complete,
                    a refined and optimized SVG is sent as the final result with usage statistics.
             security:
                 - BearerAuth: []
@@ -528,33 +581,37 @@ paths:
                             $ref: "#/components/schemas/VectorizeSVGRequest"
                         examples:
                             basic:
-                                summary: Basic image vectorization
+                                summary: Basic image vectorization (non-streaming)
                                 value:
                                     model: arrow-0.5
-                                    input:
-                                        image:
-                                            url: https://example.com/logo.png
-                            with-simplification:
-                                summary: Vectorization with auto-simplification for photos
+                                    stream: false
+                                    image:
+                                        url: https://example.com/logo.png
+                            all-params:
+                                summary: Non-streaming vectorization using all optional parameters (includes deprecated seed)
+                                value:
+                                    model: arrow-0.5
+                                    stream: false
+                                    n: 2
+                                    temperature: 0.3
+                                    top_p: 0.9
+                                    max_output_tokens: 4096
+                                    frequency_penalty: 0.1
+                                    presence_penalty: 0.0
+                                    seed: 42
+                                    simplify_if_needed: true
+                                    auto_crop: true
+                                    image:
+                                        url: https://example.com/photo.jpg
+                            streaming:
+                                summary: Streaming vectorization for photos (draft + content SSE)
                                 value:
                                     model: arrow-0.5
                                     stream: true
                                     simplify_if_needed: true
-                                    input:
-                                        image:
-                                            url: https://example.com/photo.jpg
-                                        instructions: Simplify to minimal geometric shapes
-                                    svg_params:
-                                        mode: icon
-                                        canvas:
-                                            view_box:
-                                                width: 24
-                                                height: 24
-                                        design:
-                                            style_preset: flat
-                                            complexity: 2
-                                            colors:
-                                                max_colors: 4
+                                    auto_crop: true
+                                    image:
+                                        url: https://example.com/photo.jpg
             responses:
                 "200":
                     description: OK
@@ -562,33 +619,46 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/SVGResponse"
-                            example:
-                                created: 1704067200
-                                data:
-                                    - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
-                                      mime_type: image/svg+xml
-                                usage:
-                                    total_tokens: 1024
-                                    input_tokens: 512
-                                    output_tokens: 512
-                                    input_tokens_details:
-                                        text_tokens: 0
-                                        image_tokens: 512
-                                    output_tokens_details:
-                                        svg_tokens: 512
+                            examples:
+                                single:
+                                    summary: Single SVG (n=1)
+                                    value:
+                                        id: svg-xyz789
+                                        created: 1704067200
+                                        data:
+                                            - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
+                                              mime_type: image/svg+xml
+                                        usage:
+                                            total_tokens: 1024
+                                            input_tokens: 512
+                                            output_tokens: 512
+                                multiple:
+                                    summary: Multiple SVGs (n=2)
+                                    value:
+                                        id: svg-xyz789
+                                        created: 1704067200
+                                        data:
+                                            - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
+                                              mime_type: image/svg+xml
+                                            - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
+                                              mime_type: image/svg+xml
+                                        usage:
+                                            total_tokens: 1800
+                                            input_tokens: 700
+                                            output_tokens: 1100
                         text/event-stream:
                             x-speakeasy-sse-sentinel: "[DONE]"
                             schema:
                                 $ref: "#/components/schemas/SVGStreamEvent"
                             example: |
-                                event: svg_vectorize.draft
-                                data: {"id":"svg-xyz789","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M100 50..."}
+                                event: draft
+                                data: {"type":"draft","id":"svg-xyz789","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M100 50..."}
 
-                                event: svg_vectorize.draft
-                                data: {"id":"svg-xyz789","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M100 50 L200 150 Z\"/></svg>"}
+                                event: draft
+                                data: {"type":"draft","id":"svg-xyz789","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M100 50 L200 150 Z\"/></svg>"}
 
-                                event: svg_vectorize.content
-                                data: {"id":"svg-xyz789","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M100 50 L200 150 Z\"/></svg>","usage":{"total_tokens":1024,"input_tokens":512,"output_tokens":512}}
+                                event: content
+                                data: {"type":"content","id":"svg-xyz789","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M100 50 L200 150 Z\"/></svg>","usage":{"total_tokens":1024,"input_tokens":512,"output_tokens":512}}
 
                                 data: [DONE]
                 "400":
@@ -597,23 +667,47 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                            examples:
+                                invalid-image:
+                                    summary: Image is missing or invalid
+                                    value:
+                                        type: invalid_request_error
+                                        message: "Exactly one `image` must be provided"
+                                        code: invalid_image
+                                        param: image
                 "401":
                     description: Unauthorized
                     content:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                            examples:
+                                invalid-api-key:
+                                    summary: Missing or invalid API key
+                                    value:
+                                        type: authentication_error
+                                        message: Missing or invalid API key
+                                        code: invalid_api_key
+                                        param: null
                 "429":
                     description: Rate limit exceeded
                     content:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-    /svg/vectorize/check:
+                            examples:
+                                rate-limit-exceeded:
+                                    summary: Too many requests
+                                    value:
+                                        type: rate_limit_error
+                                        message: Rate limit exceeded. Please try again later.
+                                        code: rate_limit_exceeded
+                                        param: null
+    /v1/svgs/vectorizations/checks:
         post:
-            operationId: checkVectorizability
+            operationId: checkSVGVectorizability
             tags:
-                - SVG
+                - SVG Utilities
             summary: Check image vectorizability
             description: |
                 Analyzes an image and returns whether it is suitable for vectorization.
@@ -659,29 +753,54 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                            examples:
+                                invalid-image:
+                                    summary: Image is missing or invalid
+                                    value:
+                                        type: invalid_request_error
+                                        message: "Exactly one `image` must be provided"
+                                        code: invalid_image
+                                        param: image
                 "401":
                     description: Unauthorized
                     content:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                            examples:
+                                invalid-api-key:
+                                    summary: Missing or invalid API key
+                                    value:
+                                        type: authentication_error
+                                        message: Missing or invalid API key
+                                        code: invalid_api_key
+                                        param: null
                 "429":
                     description: Rate limit exceeded
                     content:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-    /svg/collections:
+                            examples:
+                                rate-limit-exceeded:
+                                    summary: Too many requests
+                                    value:
+                                        type: rate_limit_error
+                                        message: Rate limit exceeded. Please try again later.
+                                        code: rate_limit_exceeded
+                                        param: null
+    /v1/svgs/icons/generations:
         post:
-            operationId: createSVGCollection
+            operationId: generateIcon
             tags:
-                - SVG
-            summary: Generate SVG collections
+                - Create SVGs
+            summary: Generate Icons
             description: |
-                Generates an icon set from a single descriptive prompt. The model will
-                interpret the prompt to create multiple coherent, related SVGs.
+                Generates one or more icons based on a text prompt.
+                Icons are always generated with a 1:1 aspect ratio and optimized
+                for use at various scales.
 
-                Example prompt: "create an icon set with home, web, computer, and settings icons"
+                **NOTE: This endpoint is currently not implemented.**
 
                 Supports streaming for real-time progressive rendering.
             security:
@@ -691,53 +810,30 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: "#/components/schemas/CollectionSVGRequest"
-                        examples:
-                            basic:
-                                summary: Basic icon set generation
-                                value:
-                                    model: arrow-0.5
-                                    input:
-                                        prompt: Create an icon set with home, settings, user, and search icons
-                            with-reference:
-                                summary: Icon set with style reference
-                                value:
-                                    model: arrow-0.5
-                                    stream: true
-                                    temperature: 0.7
-                                    input:
-                                        prompt: Create a navigation icon set with home, explore, notifications, and profile icons
-                                        references:
-                                            - url: https://example.com/style-reference.png
-                                    svg_params:
-                                        mode: icon
-                                        canvas:
-                                            view_box:
-                                                width: 24
-                                                height: 24
-                                        design:
-                                            style_preset: outline
-                                            stroke_width: 2
-                                            colors:
-                                                max_colors: 2
+                            $ref: "#/components/schemas/GenerateIconRequest"
             responses:
+                "501":
+                    description: Not Implemented
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: "#/components/schemas/CollectionResponse"
+                                $ref: "#/components/schemas/SVGResponse"
                             example:
+                                id: svg-icon123
                                 created: 1704067200
-                                items:
-                                    - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">...</svg>
-                                      mime_type: image/svg+xml
+                                data:
                                     - svg: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">...</svg>
                                       mime_type: image/svg+xml
                                 usage:
-                                    total_tokens: 2048
+                                    total_tokens: 1024
                                     input_tokens: 256
-                                    output_tokens: 1792
+                                    output_tokens: 768
                         text/event-stream:
                             x-speakeasy-sse-sentinel: "[DONE]"
                             schema:
@@ -920,36 +1016,6 @@ components:
                 - content
                 - role
         ChatCompletionRequestSystemMessageContentPart:
-            anyOf:
-                - $ref: "#/components/schemas/ChatCompletionRequestMessageContentPartText"
-        ChatCompletionRequestToolMessage:
-            type: object
-            title: Tool message
-            properties:
-                role:
-                    $ref: "#/components/schemas/ChatCompletionRole"
-                    description: The role of the messages author, in this case `tool`.
-                    content:
-                        description: The contents of the tool message.
-                        anyOf:
-                            - type: string
-                              description: The contents of the tool message.
-                              title: Text content
-                            - type: array
-                              description: >-
-                                  An array of content parts with a defined type. For tool messages, only type `text` is supported.
-                              title: Array of content parts
-                              items:
-                                  $ref: "#/components/schemas/ChatCompletionRequestToolMessageContentPart"
-                              minItems: 1
-                    tool_call_id:
-                        type: string
-                        description: Tool call that this message is responding to.
-            required:
-                - role
-                - content
-                - tool_call_id
-        ChatCompletionRequestToolMessageContentPart:
             anyOf:
                 - $ref: "#/components/schemas/ChatCompletionRequestMessageContentPartText"
         ChatCompletionRequestUserMessage:
@@ -1577,30 +1643,6 @@ components:
                     type: integer
                     description: Number of tokens in the output
                     example: 768
-                input_tokens_details:
-                    type: object
-                    description: Breakdown of input tokens by type
-                    properties:
-                        text_tokens:
-                            type: integer
-                            description: Number of text tokens in the input
-                            example: 128
-                        image_tokens:
-                            type: integer
-                            description: Number of image tokens in the input
-                            example: 128
-                        svg_tokens:
-                            type: integer
-                            description: Number of SVG tokens in the input
-                            example: 128
-                output_tokens_details:
-                    type: object
-                    description: Breakdown of output tokens by type
-                    properties:
-                        svg_tokens:
-                            type: integer
-                            description: Number of SVG tokens in the output
-                            example: 768
         Model:
             title: Model
             description: |
@@ -1667,22 +1709,21 @@ components:
                     description: API operations supported by this model.
                     items:
                         $ref: "#/components/schemas/SupportedOperation"
-                    example:
-                        [
-                            "svg_generate",
-                            "svg_edit",
-                            "svg_animate",
-                            "svg_collections",
-                            "chat_completions",
-                        ]
-                svg_capabilities:
-                    $ref: "#/components/schemas/SVGCapabilities"
+                    example: ["chat_completions"]
                 supported_sampling_parameters:
                     type: array
                     description: Sampling parameters supported by the model.
                     items:
                         $ref: "#/components/schemas/SamplingParameter"
-                    example: ["temperature", "top_p", "stop", "seed"]
+                    example:
+                        [
+                            "temperature",
+                            "top_p",
+                            "stop",
+                            "frequency_penalty",
+                            "presence_penalty",
+                            "seed",
+                        ]
         Modality:
             type: string
             description: Input/output modality type.
@@ -1699,51 +1740,8 @@ components:
                 - svg_edit
                 - svg_animate
                 - svg_vectorize
-                - svg_collections
                 - chat_completions
             example: svg_generate
-        SVGCapabilities:
-            type: object
-            description: SVG-specific capabilities and recommendations for the model.
-            properties:
-                supported_modes:
-                    type: array
-                    description: SVG generation modes the model excels at.
-                    items:
-                        type: string
-                        enum: [icon, illustration, logo]
-                    example: ["icon", "illustration", "logo"]
-                supported_styles:
-                    type: array
-                    description: Style presets the model supports.
-                    items:
-                        type: string
-                        enum: [flat, outline, duotone, gradient]
-                    example: ["flat", "outline", "duotone", "gradient"]
-                max_complexity:
-                    type: integer
-                    description: Maximum complexity level (1-4) the model can handle well.
-                    minimum: 1
-                    maximum: 4
-                    example: 4
-                recommended_viewbox_sizes:
-                    type: array
-                    description: Recommended viewBox sizes for optimal output quality.
-                    items:
-                        type: integer
-                    example: [24, 48, 64, 128, 256, 512]
-        Quantization:
-            type: string
-            description: Model quantization level.
-            enum:
-                - int4
-                - int8
-                - fp4
-                - fp6
-                - fp8
-                - fp16
-                - bf16
-                - fp32
         SamplingParameter:
             type: string
             description: Supported sampling parameter.
@@ -1756,15 +1754,6 @@ components:
                 - presence_penalty
                 - stop
                 - seed
-        ModelFeature:
-            type: string
-            description: Supported model feature.
-            enum:
-                - tools
-                - json_mode
-                - structured_outputs
-                - web_search
-                - reasoning
         ModelPricing:
             type: object
             description: Pricing information for the model (per token, in USD as strings to avoid floating point issues).
@@ -1796,14 +1785,6 @@ components:
                     type: string
                     description: Price per cached input token write in USD.
                     example: "0"
-        Datacenter:
-            type: object
-            description: Datacenter location information.
-            properties:
-                country_code:
-                    type: string
-                    description: ISO 3166-1 alpha-2 country code.
-                    example: "US"
         ListModelsResponse:
             type: object
             description: Response containing a list of available models. Compatible with OpenAI SDK.
@@ -1822,7 +1803,7 @@ components:
             required:
                 - object
                 - data
-        InputReference:
+        ImageInputReferenceUrl:
             type: object
             required:
                 - url
@@ -1831,43 +1812,24 @@ components:
                     type: string
                     description: Image URL or base64 data URI
                     example: https://example.com/uploads/reference1.png
-        SVGInput:
+        ImageInputReferenceBase64:
             type: object
             required:
-                - prompt
-            description: Input configuration for text-to-SVG generation
+                - base64
             properties:
-                instructions:
+                base64:
                     type: string
-                    description: Additional instructions for the model
-                    example: Create a minimal, modern icon
-                prompt:
-                    type: string
-                    description: The main text prompt describing the desired SVG
-                    example: Generate an icon of a unicorn
-                references:
-                    type: array
-                    description: Optional reference images to guide style/composition
-                    items:
-                        $ref: "#/components/schemas/InputReference"
-        SVGSource:
-            type: string
-            description: Source SVG for editing operations (inline SVG markup or URL)
-            example: <svg xmlns="http://www.w3.org/2000/svg">...</svg>
-        SVGEditInput:
-            allOf:
-                - $ref: "#/components/schemas/SVGInput"
-                - type: object
-                  required:
-                      - source
-                  properties:
-                      source:
-                          $ref: "#/components/schemas/SVGSource"
+                    description: Base64-encoded image data
+                    example: iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==
+        ImageInputReference:
+            oneOf:
+                - $ref: "#/components/schemas/ImageInputReferenceUrl"
+                - $ref: "#/components/schemas/ImageInputReferenceBase64"
+            description: Reference image input (URL or base64-encoded)
         SVGRequestBase:
             type: object
             required:
                 - model
-                - stream
             properties:
                 model:
                     type: string
@@ -1898,6 +1860,7 @@ components:
                     description: If true, responses are streamed as Server-Sent Events
                     example: false
                     default: false
+                    x-go-type-skip-optional-pointer: true
                 temperature:
                     type: number
                     description: Sampling temperature
@@ -1936,32 +1899,34 @@ components:
 
                         Determinism is not guaranteed.
 
-        QuiverMessage:
-            anyOf:
-                - $ref: "#/components/schemas/CreateSVGRequest"
-                - $ref: "#/components/schemas/EditSVGRequest"
-        CreateSVGRequest:
+        GenerateSVGRequest:
             allOf:
                 - $ref: "#/components/schemas/SVGRequestBase"
                 - type: object
                   required:
-                      - input
+                      - prompt
                   properties:
-                      input:
-                          $ref: "#/components/schemas/SVGInput"
-                      svg_params:
-                          $ref: "#/components/schemas/SVGParams"
+                      prompt:
+                          type: string
+                          description: The main text prompt describing the desired SVG
+                          example: Generate an icon of a unicorn
+                      instructions:
+                          type: string
+                          description: Additional instructions for the model
+                          example: Create a minimal, modern icon
+                      references:
+                          type: array
+                          maxItems: 4
+                          description: |
+                              Optional reference images to guide style/composition.
+                              Maximum of 4 images.
+                          items:
+                              $ref: "#/components/schemas/ImageInputReference"
+                      aspect_ratio:
+                          $ref: "#/components/schemas/AspectRatio"
         EditSVGRequest:
-            allOf:
-                - $ref: "#/components/schemas/SVGRequestBase"
-                - type: object
-                  required:
-                      - input
-                  properties:
-                      input:
-                          $ref: "#/components/schemas/SVGEditInput"
-                      svg_params:
-                          $ref: "#/components/schemas/SVGParams"
+            type: object
+            description: Not Implemented
         SVGDocument:
             type: object
             required:
@@ -2000,20 +1965,6 @@ components:
                         $ref: "#/components/schemas/SVGDocument"
                 usage:
                     $ref: "#/components/schemas/Usage"
-        # SVG Generation Mode
-        SVGMode:
-            type: string
-            description: |
-                The generation mode optimized for different use cases.
-                - `icon`: Optimized for small sizes, usually square, distinct shapes
-                - `illustration`: Optimized for scenes, larger viewports, complex details
-                - `logo`: Optimized for uniqueness, strong silhouettes, text-compatible
-            enum:
-                - icon
-                - illustration
-                - logo
-            default: icon
-            example: icon
         # Aspect Ratio
         AspectRatio:
             type: string
@@ -2038,368 +1989,34 @@ components:
                 - "21:9"
             default: "1:1"
             example: "1:1"
-        # Canvas Configuration
-        ViewBox:
-            type: object
-            description: ViewBox dimensions for the SVG coordinate system
-            properties:
-                width:
-                    type: integer
-                    description: ViewBox width
-                    example: 24
-                    minimum: 1
-                    maximum: 4096
-                    default: 24
-                height:
-                    type: integer
-                    description: ViewBox height
-                    example: 24
-                    minimum: 1
-                    maximum: 4096
-                    default: 24
-        SafeZoneOverrides:
-            type: object
-            description: Optional overrides for specific sides of the safe zone
-            properties:
-                top:
-                    type: number
-                    description: Override value for top margin
-                    minimum: 0
-                    maximum: 1
-                bottom:
-                    type: number
-                    description: Override value for bottom margin
-                    minimum: 0
-                    maximum: 1
-                left:
-                    type: number
-                    description: Override value for left margin
-                    minimum: 0
-                    maximum: 1
-                right:
-                    type: number
-                    description: Override value for right margin
-                    minimum: 0
-                    maximum: 1
-        SafeZoneMode:
-            type: string
-            description: |
-                How safe zone values are interpreted.
-                - `relative`: Values are 0-1 representing percentage of viewport
-                - `absolute`: Values are in SVG coordinate units
-            enum:
-                - relative
-                - absolute
-            default: relative
-        SafeZone:
-            type: object
-            description: |
-                The "Safe Zone" is the guaranteed empty margin between content and edge.
-                Prevents clipping and bad cropping.
-            properties:
-                mode:
-                    $ref: "#/components/schemas/SafeZoneMode"
-                value:
-                    type: number
-                    description: Padding value (interpretation depends on mode)
-                    example: 0.1
-                    minimum: 0
-                    default: 0.1
-                overrides:
-                    $ref: "#/components/schemas/SafeZoneOverrides"
-        Canvas:
-            type: object
-            description: |
-                Controls the coordinate system and "Safe Zones" to prevent clipping/bad cropping.
-                NOTE: "mode" determines the default canvas if this is omitted.
-            properties:
-                view_box:
-                    $ref: "#/components/schemas/ViewBox"
-                aspect_ratio:
-                    $ref: "#/components/schemas/AspectRatio"
-                safe_zone:
-                    $ref: "#/components/schemas/SafeZone"
-        # Color System
-        ColorAdherence:
-            type: string
-            description: |
-                How strictly the model must adhere to the provided colors.
-                - `strict`: Only use exact hex codes provided
-                - `tints_and_shades`: Can adjust lightness/opacity, but no new hues
-                - `creative`: Palette is a suggestion/starting point
-            enum:
-                - strict
-                - tints_and_shades
-                - creative
-            default: tints_and_shades
-        ColorRoles:
-            type: object
-            description: Semantic mapping of colors to specific roles
-            properties:
-                background:
-                    type: array
-                    description: Colors allowed for background elements
-                    items:
-                        type: string
-                    example: ["#FFFFFF"]
-                    x-go-type-skip-optional-pointer: true
-                primary:
-                    type: array
-                    description: Primary/main colors for key elements
-                    items:
-                        type: string
-                    example: ["#1A1A1A"]
-                    x-go-type-skip-optional-pointer: true
-                accent:
-                    type: array
-                    description: Accent colors for highlights and emphasis
-                    items:
-                        type: string
-                    example: ["#12FBA2"]
-                    x-go-type-skip-optional-pointer: true
-                metadata:
-                    type: array
-                    description: Arbitrary custom role colors
-                    items:
-                        type: string
-                    x-go-type-skip-optional-pointer: true
-        Colors:
-            type: object
-            description: The color system configuration for SVG generation
-            properties:
-                max_colors:
-                    type: integer
-                    description: Soft limit on unique colors
-                    example: 4
-                    minimum: 1
-                    maximum: 256
-                    default: 4
-                use_gradients:
-                    type: boolean
-                    description: If true, allows <linearGradient> and <radialGradient> definitions
-                    default: false
-                palette:
-                    type: array
-                    description: General list of allowed colors (hex codes)
-                    items:
-                        type: string
-                    example: ["#12FBA2", "#1A1A1A", "#FFFFFF"]
-                    x-go-type-skip-optional-pointer: true
-                roles:
-                    $ref: "#/components/schemas/ColorRoles"
-                adherence:
-                    $ref: "#/components/schemas/ColorAdherence"
-                allow_opacity:
-                    type: boolean
-                    description: Whether to allow opacity/transparency variations
-                    default: true
-        # Stroke Styling
-        StrokeLineCap:
-            type: string
-            description: |
-                The shape at the end of open paths.
-                - `butt`: Flat edge at the exact endpoint
-                - `round`: Rounded edge extending past endpoint
-                - `square`: Square edge extending past endpoint
-            enum:
-                - butt
-                - round
-                - square
-            default: round
-            example: round
-        StrokeLineJoin:
-            type: string
-            description: |
-                The shape at the corners where paths meet.
-                - `miter`: Sharp pointed corner
-                - `round`: Rounded corner
-                - `bevel`: Flat diagonal corner
-            enum:
-                - miter
-                - round
-                - bevel
-            default: round
-            example: round
-        FillRule:
-            type: string
-            description: |
-                Algorithm for determining inside/outside of complex paths.
-                - `nonzero`: Standard fill rule
-                - `evenodd`: Alternating fill based on path crossings
-            enum:
-                - nonzero
-                - evenodd
-            default: nonzero
-            example: nonzero
-        # Style Preset
-        StylePreset:
-            type: string
-            description: |
-                Predefined style to apply to the generated SVG.
-                - `flat`: Solid fills, no gradients or shadows
-                - `outline`: Stroke-based with minimal or no fills
-                - `duotone`: Two-color design style
-                - `gradient`: Uses gradient fills
-                - `isometric`: 3D isometric projection style
-                - `hand_drawn`: Organic, sketch-like appearance
-            enum:
-                - flat
-                - outline
-                - duotone
-                - gradient
-                - isometric
-                - hand_drawn
-            example: outline
-        # Design Configuration
-        Design:
-            type: object
-            description: Controls how the model applies aesthetics to the generated SVG
-            properties:
-                style_preset:
-                    $ref: "#/components/schemas/StylePreset"
-                complexity:
-                    type: integer
-                    description: |
-                        Detail level from 1-4:
-                        - 1: Minimal, simple shapes
-                        - 2: Standard, balanced detail
-                        - 3: Detailed, more intricate
-                        - 4: Highly detailed, maximum complexity
-                    minimum: 1
-                    maximum: 4
-                    default: 2
-                    example: 2
-                include_background:
-                    type: boolean
-                    description: If true, generates a filled <rect> background layer
-                    default: false
-                stroke_width:
-                    type: number
-                    description: Stroke width relative to the viewBox size
-                    example: 1.5
-                    minimum: 0
-                    default: 1.5
-                linecap:
-                    $ref: "#/components/schemas/StrokeLineCap"
-                linejoin:
-                    $ref: "#/components/schemas/StrokeLineJoin"
-                fill_rule:
-                    $ref: "#/components/schemas/FillRule"
-                colors:
-                    $ref: "#/components/schemas/Colors"
-        # Constraints
-        Constraints:
-            type: object
-            description: Limits and constraints for the generated SVG output
-            properties:
-                max_paths:
-                    type: integer
-                    description: Maximum number of path elements in the SVG
-                    example: 64
-                    minimum: 1
-                    maximum: 1024
-                max_elements:
-                    type: integer
-                    description: Maximum total number of SVG elements
-                    example: 128
-                    minimum: 1
-                    maximum: 2048
-                max_points_per_path:
-                    type: integer
-                    description: Maximum number of points/commands per path
-                    example: 256
-                    minimum: 1
-                    maximum: 4096
-        # Main SVGParams schema
-        SVGParams:
-            type: object
-            description: |
-                SVG-specific generation parameters for controlling canvas, design, and styling.
-                These parameters give fine-grained control over the generated SVG output.
-            properties:
-                mode:
-                    $ref: "#/components/schemas/SVGMode"
-                canvas:
-                    $ref: "#/components/schemas/Canvas"
-                design:
-                    $ref: "#/components/schemas/Design"
-                constraints:
-                    $ref: "#/components/schemas/Constraints"
-        SVGAnimateInput:
-            type: object
-            required:
-                - motion_prompt
-                - source
-            properties:
-                motion_prompt:
-                    type: string
-                    description: Description of the desired animation
-                    example: Add a gentle floating animation
-                source:
-                    $ref: "#/components/schemas/SVGSource"
-                instructions:
-                    type: string
-                    description: Additional instructions for the model
-                    example: Use smooth CSS transitions
         AnimateSVGRequest:
-            allOf:
-                - $ref: "#/components/schemas/SVGRequestBase"
-                - type: object
-                  required:
-                      - input
-                  properties:
-                      input:
-                          $ref: "#/components/schemas/SVGAnimateInput"
-                      duration:
-                          type: integer
-                          description: Animation duration in seconds
-                          example: 2
-                          default: 2
-                          minimum: 1
-                          maximum: 30
-                      easing:
-                          type: string
-                          description: CSS easing function
-                          enum:
-                              - linear
-                              - ease
-                              - ease-in
-                              - ease-out
-                              - ease-in-out
-                          default: ease
-                          example: ease-in-out
-                      svg_params:
-                          $ref: "#/components/schemas/SVGParams"
-        SVGVectorizeInput:
             type: object
-            required:
-                - image
-            description: Input configuration for image-to-SVG vectorization
-            properties:
-                image:
-                    $ref: "#/components/schemas/InputReference"
-                    description: The source image to vectorize (exactly one required)
-                instructions:
-                    type: string
-                    description: Optional instructions for vectorization style
-                    example: Simplify to minimal geometric shapes
+            description: Not Implemented
         VectorizeSVGRequest:
             allOf:
                 - $ref: "#/components/schemas/SVGRequestBase"
                 - type: object
                   required:
-                      - input
+                      - image
                   properties:
-                      input:
-                          $ref: "#/components/schemas/SVGVectorizeInput"
-                      svg_params:
-                          $ref: "#/components/schemas/SVGParams"
+                      image:
+                          $ref: "#/components/schemas/ImageInputReference"
+                          description: The source image to vectorize (exactly one required)
                       simplify_if_needed:
                           type: boolean
                           description: |
                               If true, the image is analyzed for vectorizability. Images deemed
                               unsuitable (e.g., photos with complex textures) are automatically
                               simplified before vectorization to improve results.
+                          default: false
+                          example: true
+                      auto_crop:
+                          type: boolean
+                          description: |
+                              If true, the image is automatically cropped to the subject before vectorization.
+                              This can improve results for images with large amounts of empty space or
+                              distracting backgrounds. We generally recommend users to crop their images
+                              manually for best results.
                           default: false
                           example: true
         VectorizabilityCheckRequest:
@@ -2409,7 +2026,7 @@ components:
             description: Request to check if an image is suitable for vectorization
             properties:
                 image:
-                    $ref: "#/components/schemas/InputReference"
+                    $ref: "#/components/schemas/ImageInputReference"
                     description: The image to analyze
         VectorizabilityCheckResponse:
             type: object
@@ -2421,345 +2038,38 @@ components:
                     type: boolean
                     description: Whether the image is suitable for vectorization
                     example: true
-        CollectionSVGRequest:
-            allOf:
-                - $ref: "#/components/schemas/SVGRequestBase"
-                - type: object
-                  required:
-                      - input
-                  properties:
-                      input:
-                          $ref: "#/components/schemas/SVGInput"
-                      svg_params:
-                          $ref: "#/components/schemas/SVGParams"
-        CollectionResponse:
+        GenerateIconRequest:
             type: object
-            required:
-                - created
-                - items
-            properties:
-                created:
-                    type: integer
-                    description: Unix timestamp of when the response was created
-                    example: 1704067200
-                items:
-                    type: array
-                    description: Array of generated SVG documents in the collection
-                    items:
-                        $ref: "#/components/schemas/SVGDocument"
-                usage:
-                    $ref: "#/components/schemas/Usage"
+            description: Not Implemented
         SVGStreamEvent:
+            type: object
             description: |
                 Streaming event for SVG operations (SSE format).
                 Events flow in up to three phases:
-                1. `*.reasoning` - Model thinking about design approach (generate/edit/animate only)
+                1. `*.reasoning` - Model thinking about design approach (create/edit/animate only)
                 2. `*.draft` - Streaming partial SVG chunks as generated
                 3. `*.content` - Final postprocessed, optimized SVG
-            oneOf:
-                # Generate events (has reasoning)
-                - $ref: "#/components/schemas/SVGGenerateReasoningEvent"
-                - $ref: "#/components/schemas/SVGGenerateDraftEvent"
-                - $ref: "#/components/schemas/SVGGenerateContentEvent"
-                # Vectorize events (no reasoning - just tracing)
-                - $ref: "#/components/schemas/SVGVectorizeDraftEvent"
-                - $ref: "#/components/schemas/SVGVectorizeContentEvent"
-                # Edit events (has reasoning)
-                - $ref: "#/components/schemas/SVGEditReasoningEvent"
-                - $ref: "#/components/schemas/SVGEditDraftEvent"
-                - $ref: "#/components/schemas/SVGEditContentEvent"
-                # Animate events (has reasoning)
-                - $ref: "#/components/schemas/SVGAnimateReasoningEvent"
-                - $ref: "#/components/schemas/SVGAnimateDraftEvent"
-                - $ref: "#/components/schemas/SVGAnimateContentEvent"
-            discriminator:
-                propertyName: event
-                mapping:
-                    svg_generate.reasoning: "#/components/schemas/SVGGenerateReasoningEvent"
-                    svg_generate.draft: "#/components/schemas/SVGGenerateDraftEvent"
-                    svg_generate.content: "#/components/schemas/SVGGenerateContentEvent"
-                    svg_vectorize.draft: "#/components/schemas/SVGVectorizeDraftEvent"
-                    svg_vectorize.content: "#/components/schemas/SVGVectorizeContentEvent"
-                    svg_edit.reasoning: "#/components/schemas/SVGEditReasoningEvent"
-                    svg_edit.draft: "#/components/schemas/SVGEditDraftEvent"
-                    svg_edit.content: "#/components/schemas/SVGEditContentEvent"
-                    svg_animate.reasoning: "#/components/schemas/SVGAnimateReasoningEvent"
-                    svg_animate.draft: "#/components/schemas/SVGAnimateDraftEvent"
-                    svg_animate.content: "#/components/schemas/SVGAnimateContentEvent"
-        # ============================================================================
-        # Generate Events (for /svg/generate - has reasoning)
-        # ============================================================================
-        SVGGenerateReasoningEvent:
-            type: object
-            description: Model reasoning about SVG design approach.
             required:
-                - event
-                - data
+                - type
+                - id
+                - svg
             properties:
-                event:
+                type:
                     type: string
-                    const: svg_generate.reasoning
-                data:
-                    type: object
-                    required:
-                        - id
-                        - text
-                    properties:
-                        id:
-                            type: string
-                            description: A unique identifier for the SVG generation.
-                            example: svg-abc123
-                        text:
-                            type: string
-                            description: Reasoning text about design decisions.
-        SVGGenerateDraftEvent:
-            type: object
-            description: Streaming partial SVG chunks as generated by the model.
-            required:
-                - event
-                - data
-            properties:
-                event:
+                    description: The event type indicating the operation and phase.
+                    enum:
+                        - reasoning
+                        - draft
+                        - content
+                    example: content
+                id:
                     type: string
-                    const: svg_generate.draft
-                data:
-                    type: object
-                    required:
-                        - id
-                        - svg
-                    properties:
-                        id:
-                            type: string
-                            description: A unique identifier for the SVG generation.
-                            example: svg-abc123
-                        svg:
-                            type: string
-                            description: Partial SVG markup during streaming.
-        SVGGenerateContentEvent:
-            type: object
-            description: Final postprocessed, optimized SVG.
-            required:
-                - event
-                - data
-            properties:
-                event:
+                    description: A unique identifier for the SVG operation.
+                    example: svg-abc123
+                svg:
                     type: string
-                    const: svg_generate.content
-                data:
-                    type: object
-                    required:
-                        - id
-                        - svg
-                    properties:
-                        id:
-                            type: string
-                            description: A unique identifier for the SVG generation.
-                            example: svg-abc123
-                        svg:
-                            type: string
-                            description: Complete, optimized SVG markup.
-                        usage:
-                            $ref: "#/components/schemas/Usage"
-                            description: Token usage statistics.
-        # ============================================================================
-        # Vectorize Events (for /svg/vectorize - NO reasoning, just tracing)
-        # ============================================================================
-        SVGVectorizeDraftEvent:
-            type: object
-            description: Streaming partial SVG chunks during image vectorization.
-            required:
-                - event
-                - data
-            properties:
-                event:
-                    type: string
-                    const: svg_vectorize.draft
-                data:
-                    type: object
-                    required:
-                        - id
-                        - svg
-                    properties:
-                        id:
-                            type: string
-                            description: A unique identifier for the vectorization.
-                            example: svg-xyz789
-                        svg:
-                            type: string
-                            description: Partial SVG markup during vectorization.
-        SVGVectorizeContentEvent:
-            type: object
-            description: Final postprocessed, optimized vectorized SVG.
-            required:
-                - event
-                - data
-            properties:
-                event:
-                    type: string
-                    const: svg_vectorize.content
-                data:
-                    type: object
-                    required:
-                        - id
-                        - svg
-                    properties:
-                        id:
-                            type: string
-                            description: A unique identifier for the vectorization.
-                            example: svg-xyz789
-                        svg:
-                            type: string
-                            description: Complete, optimized vectorized SVG markup.
-                        usage:
-                            $ref: "#/components/schemas/Usage"
-                            description: Token usage statistics.
-        # ============================================================================
-        # Edit Events (for /svg/edit - has reasoning)
-        # ============================================================================
-        SVGEditReasoningEvent:
-            type: object
-            description: Model reasoning about SVG edit approach.
-            required:
-                - event
-                - data
-            properties:
-                event:
-                    type: string
-                    const: svg_edit.reasoning
-                data:
-                    type: object
-                    required:
-                        - id
-                        - text
-                    properties:
-                        id:
-                            type: string
-                            description: A unique identifier for the SVG edit.
-                            example: svg-def456
-                        text:
-                            type: string
-                            description: Reasoning text about edit decisions.
-        SVGEditDraftEvent:
-            type: object
-            description: Streaming partial SVG chunks during editing.
-            required:
-                - event
-                - data
-            properties:
-                event:
-                    type: string
-                    const: svg_edit.draft
-                data:
-                    type: object
-                    required:
-                        - id
-                        - svg
-                    properties:
-                        id:
-                            type: string
-                            description: A unique identifier for the SVG edit.
-                            example: svg-def456
-                        svg:
-                            type: string
-                            description: Partial SVG markup during editing.
-        SVGEditContentEvent:
-            type: object
-            description: Final postprocessed, optimized edited SVG.
-            required:
-                - event
-                - data
-            properties:
-                event:
-                    type: string
-                    const: svg_edit.content
-                data:
-                    type: object
-                    required:
-                        - id
-                        - svg
-                    properties:
-                        id:
-                            type: string
-                            description: A unique identifier for the SVG edit.
-                            example: svg-def456
-                        svg:
-                            type: string
-                            description: Complete edited SVG markup.
-                        usage:
-                            $ref: "#/components/schemas/Usage"
-                            description: Token usage statistics.
-        # ============================================================================
-        # Animate Events (for /svg/animate - has reasoning)
-        # ============================================================================
-        SVGAnimateReasoningEvent:
-            type: object
-            description: Model reasoning about SVG animation approach.
-            required:
-                - event
-                - data
-            properties:
-                event:
-                    type: string
-                    const: svg_animate.reasoning
-                data:
-                    type: object
-                    required:
-                        - id
-                        - text
-                    properties:
-                        id:
-                            type: string
-                            description: A unique identifier for the SVG animation.
-                            example: svg-ghi789
-                        text:
-                            type: string
-                            description: Reasoning text about animation decisions.
-        SVGAnimateDraftEvent:
-            type: object
-            description: Streaming partial SVG chunks during animation generation.
-            required:
-                - event
-                - data
-            properties:
-                event:
-                    type: string
-                    const: svg_animate.draft
-                data:
-                    type: object
-                    required:
-                        - id
-                        - svg
-                    properties:
-                        id:
-                            type: string
-                            description: A unique identifier for the SVG animation.
-                            example: svg-ghi789
-                        svg:
-                            type: string
-                            description: Partial animated SVG markup.
-        SVGAnimateContentEvent:
-            type: object
-            description: Final postprocessed, optimized animated SVG.
-            required:
-                - event
-                - data
-            properties:
-                event:
-                    type: string
-                    const: svg_animate.content
-                data:
-                    type: object
-                    required:
-                        - id
-                        - svg
-                    properties:
-                        id:
-                            type: string
-                            description: A unique identifier for the SVG animation.
-                            example: svg-ghi789
-                        svg:
-                            type: string
-                            description: Complete animated SVG markup.
-                        usage:
-                            $ref: "#/components/schemas/Usage"
-                            description: Token usage statistics.
+                    description: The SVG markup (partial during draft, complete during content).
+                    example: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
+                usage:
+                    $ref: "#/components/schemas/Usage"
+                    description: Token usage statistics. Only present in content events.
