@@ -49,6 +49,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/CreateChatCompletionResponse"
                         text/event-stream:
+                            x-speakeasy-sse-sentinel: "[DONE]"
                             schema:
                                 $ref: "#/components/schemas/CreateChatCompletionStreamResponse"
             description: |
@@ -348,16 +349,16 @@ paths:
                                 $ref: "#/components/schemas/SVGStreamEvent"
                             example: |
                                 event: reasoning
-                                data: {"type":"reasoning","id":"svg-abc123","svg":"","text":"Creating a minimalist icon with clean geometric shapes..."}
+                                data: {"event":"reasoning","id":"svg-abc123","svg":"","text":"Creating a minimalist icon with clean geometric shapes..."}
 
                                 event: draft
-                                data: {"type":"draft","id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32..."}
+                                data: {"event":"draft","id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32..."}
 
                                 event: draft
-                                data: {"type":"draft","id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32 L300 100 Z\"/></svg>"}
+                                data: {"event":"draft","id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32 L300 100 Z\"/></svg>"}
 
                                 event: content
-                                data: {"type":"content","id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32 L300 100 Z\"/></svg>","usage":{"total_tokens":1024,"input_tokens":256,"output_tokens":768}}
+                                data: {"event":"content","id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32 L300 100 Z\"/></svg>","usage":{"total_tokens":1024,"input_tokens":256,"output_tokens":768}}
 
                                 data: [DONE]
                 "400":
@@ -454,16 +455,16 @@ paths:
                                 $ref: "#/components/schemas/SVGStreamEvent"
                             example: |
                                 event: reasoning
-                                data: {"type":"reasoning","id":"svg-def456","svg":"","text":"Analyzing the SVG structure to apply the requested color change..."}
+                                data: {"event":"reasoning","id":"svg-def456","svg":"","text":"Analyzing the SVG structure to apply the requested color change..."}
 
                                 event: draft
-                                data: {"type":"draft","id":"svg-def456","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path fill=\"#000000\"..."}
+                                data: {"event":"draft","id":"svg-def456","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path fill=\"#000000\"..."}
 
                                 event: draft
-                                data: {"type":"draft","id":"svg-def456","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path fill=\"#000000\" d=\"M256 32 L300 100 Z\"/></svg>"}
+                                data: {"event":"draft","id":"svg-def456","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path fill=\"#000000\" d=\"M256 32 L300 100 Z\"/></svg>"}
 
                                 event: content
-                                data: {"type":"content","id":"svg-def456","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path fill=\"#000000\" d=\"M256 32 L300 100 Z\"/></svg>","usage":{"total_tokens":1536,"input_tokens":768,"output_tokens":768}}
+                                data: {"event":"content","id":"svg-def456","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path fill=\"#000000\" d=\"M256 32 L300 100 Z\"/></svg>","usage":{"total_tokens":1536,"input_tokens":768,"output_tokens":768}}
 
                                 data: [DONE]
                 "400":
@@ -652,13 +653,13 @@ paths:
                                 $ref: "#/components/schemas/SVGStreamEvent"
                             example: |
                                 event: draft
-                                data: {"type":"draft","id":"svg-xyz789","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M100 50..."}
+                                data: {"event":"draft","id":"svg-xyz789","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M100 50..."}
 
                                 event: draft
-                                data: {"type":"draft","id":"svg-xyz789","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M100 50 L200 150 Z\"/></svg>"}
+                                data: {"event":"draft","id":"svg-xyz789","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M100 50 L200 150 Z\"/></svg>"}
 
                                 event: content
-                                data: {"type":"content","id":"svg-xyz789","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M100 50 L200 150 Z\"/></svg>","usage":{"total_tokens":1024,"input_tokens":512,"output_tokens":512}}
+                                data: {"event":"content","id":"svg-xyz789","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M100 50 L200 150 Z\"/></svg>","usage":{"total_tokens":1024,"input_tokens":512,"output_tokens":512}}
 
                                 data: [DONE]
                 "400":
@@ -2042,34 +2043,90 @@ components:
             type: object
             description: Not Implemented
         SVGStreamEvent:
-            type: object
             description: |
                 Streaming event for SVG operations (SSE format).
                 Events flow in up to three phases:
-                1. `*.reasoning` - Model thinking about design approach (create/edit/animate only)
-                2. `*.draft` - Streaming partial SVG chunks as generated
-                3. `*.content` - Final postprocessed, optimized SVG
+                1. `reasoning` - Model thinking about design approach (create/edit/animate only)
+                2. `draft` - Streaming partial SVG chunks as generated
+                3. `content` - Final postprocessed, optimized SVG
+            oneOf:
+                - $ref: "#/components/schemas/SVGReasoningStreamEvent"
+                - $ref: "#/components/schemas/SVGDraftStreamEvent"
+                - $ref: "#/components/schemas/SVGContentStreamEvent"
+            discriminator:
+                propertyName: event
+                mapping:
+                    reasoning: "#/components/schemas/SVGReasoningStreamEvent"
+                    draft: "#/components/schemas/SVGDraftStreamEvent"
+                    content: "#/components/schemas/SVGContentStreamEvent"
+
+        SVGReasoningStreamEvent:
+            type: object
+            description: A server-sent event containing model reasoning for SVG operations.
             required:
-                - type
+                - event
                 - id
                 - svg
+                - text
             properties:
-                type:
+                event:
                     type: string
-                    description: The event type indicating the operation and phase.
-                    enum:
-                        - reasoning
-                        - draft
-                        - content
-                    example: content
+                    const: reasoning
+                    description: Event type discriminator.
                 id:
                     type: string
                     description: A unique identifier for the SVG operation.
                     example: svg-abc123
                 svg:
                     type: string
-                    description: The SVG markup (partial during draft, complete during content).
+                    description: The SVG markup (usually empty during reasoning).
+                    example: ""
+                text:
+                    type: string
+                    description: Reasoning text describing the model's approach.
+
+        SVGDraftStreamEvent:
+            type: object
+            description: A server-sent event containing a draft SVG chunk.
+            required:
+                - event
+                - id
+                - svg
+            properties:
+                event:
+                    type: string
+                    const: draft
+                    description: Event type discriminator.
+                id:
+                    type: string
+                    description: A unique identifier for the SVG operation.
+                    example: svg-abc123
+                svg:
+                    type: string
+                    description: A partial SVG chunk.
+                    example: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
+
+        SVGContentStreamEvent:
+            type: object
+            description: A server-sent event containing the final SVG and usage statistics.
+            required:
+                - event
+                - id
+                - svg
+                - usage
+            properties:
+                event:
+                    type: string
+                    const: content
+                    description: Event type discriminator.
+                id:
+                    type: string
+                    description: A unique identifier for the SVG operation.
+                    example: svg-abc123
+                svg:
+                    type: string
+                    description: The final, optimized SVG markup.
                     example: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
                 usage:
                     $ref: "#/components/schemas/Usage"
-                    description: Token usage statistics. Only present in content events.
+                    description: Token usage statistics for the request.
