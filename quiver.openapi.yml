@@ -2044,11 +2044,35 @@ components:
         SVGStreamEvent:
             type: object
             description: |
-                Streaming event for SVG operations (SSE format).
-                Events flow in up to three phases:
-                1. `*.reasoning` - Model thinking about design approach (create/edit/animate only)
-                2. `*.draft` - Streaming partial SVG chunks as generated
-                3. `*.content` - Final postprocessed, optimized SVG
+                Server-sent event (SSE) envelope for SVG streaming operations.
+
+                Speakeasy expects SSE event schemas to only declare the canonical SSE fields
+                (`id`, `event`, `data`, `retry`) at the top level. The server uses the SSE `event:`
+                line for the phase discriminator and the `data:` line for a JSON payload.
+            required:
+                - event
+                - data
+            properties:
+                id:
+                    type: string
+                    description: Optional SSE event id (sent via the `id:` line).
+                event:
+                    type: string
+                    description: The SSE event name (sent via the `event:` line).
+                    enum:
+                        - reasoning
+                        - draft
+                        - content
+                data:
+                    $ref: "#/components/schemas/SVGStreamEventData"
+                    description: JSON payload sent via the `data:` line.
+                retry:
+                    type: integer
+                    description: Optional SSE retry value in milliseconds (sent via the `retry:` line).
+
+        SVGStreamEventData:
+            type: object
+            description: JSON payload for SVG streaming SSE events (sent in the `data:` line).
             required:
                 - type
                 - id
@@ -2056,7 +2080,7 @@ components:
             properties:
                 type:
                     type: string
-                    description: The event type indicating the operation and phase.
+                    description: The event type indicating the phase.
                     enum:
                         - reasoning
                         - draft
@@ -2070,6 +2094,9 @@ components:
                     type: string
                     description: The SVG markup (partial during draft, complete during content).
                     example: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
+                text:
+                    type: string
+                    description: Optional reasoning text (present on reasoning events for some operations).
                 usage:
                     $ref: "#/components/schemas/Usage"
                     description: Token usage statistics. Only present in content events.
