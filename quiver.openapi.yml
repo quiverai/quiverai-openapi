@@ -348,14 +348,17 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/SVGStreamEvent"
                             example: |
-                                event: reasoning
-                                data: {"event":"reasoning","id":"svg-abc123","svg":"","text":"Creating a minimalist icon with clean geometric shapes..."}
+                                event: reasoning.delta
+                                data: {"event":"reasoning.delta","id":"svg-abc123","svg":"","text":"Creating a minimalist icon with clean geometric shapes..."}
 
-                                event: draft
-                                data: {"event":"draft","id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32..."}
+                                event: draft.delta
+                                data: {"event":"draft.delta","id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32..."}
 
-                                event: draft
-                                data: {"event":"draft","id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32 L300 100 Z\"/></svg>"}
+                                event: draft.delta
+                                data: {"event":"draft.delta","id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32 L300 100 Z\"/></svg>"}
+
+                                event: content.start
+                                data: {"event":"content.start","id":"svg-abc123"}
 
                                 event: content
                                 data: {"event":"content","id":"svg-abc123","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M256 32 L300 100 Z\"/></svg>","usage":{"total_tokens":1024,"input_tokens":256,"output_tokens":768}}
@@ -454,14 +457,17 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/SVGStreamEvent"
                             example: |
-                                event: reasoning
-                                data: {"event":"reasoning","id":"svg-def456","svg":"","text":"Analyzing the SVG structure to apply the requested color change..."}
+                                event: reasoning.delta
+                                data: {"event":"reasoning.delta","id":"svg-def456","svg":"","text":"Analyzing the SVG structure to apply the requested color change..."}
 
-                                event: draft
-                                data: {"event":"draft","id":"svg-def456","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path fill=\"#000000\"..."}
+                                event: draft.delta
+                                data: {"event":"draft.delta","id":"svg-def456","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path fill=\"#000000\"..."}
 
-                                event: draft
-                                data: {"event":"draft","id":"svg-def456","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path fill=\"#000000\" d=\"M256 32 L300 100 Z\"/></svg>"}
+                                event: draft.delta
+                                data: {"event":"draft.delta","id":"svg-def456","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path fill=\"#000000\" d=\"M256 32 L300 100 Z\"/></svg>"}
+
+                                event: content.start
+                                data: {"event":"content.start","id":"svg-def456"}
 
                                 event: content
                                 data: {"event":"content","id":"svg-def456","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path fill=\"#000000\" d=\"M256 32 L300 100 Z\"/></svg>","usage":{"total_tokens":1536,"input_tokens":768,"output_tokens":768}}
@@ -652,11 +658,14 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/SVGStreamEvent"
                             example: |
-                                event: draft
-                                data: {"event":"draft","id":"svg-xyz789","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M100 50..."}
+                                event: draft.delta
+                                data: {"event":"draft.delta","id":"svg-xyz789","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M100 50..."}
 
-                                event: draft
-                                data: {"event":"draft","id":"svg-xyz789","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M100 50 L200 150 Z\"/></svg>"}
+                                event: draft.delta
+                                data: {"event":"draft.delta","id":"svg-xyz789","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M100 50 L200 150 Z\"/></svg>"}
+
+                                event: content.start
+                                data: {"event":"content.start","id":"svg-xyz789"}
 
                                 event: content
                                 data: {"event":"content","id":"svg-xyz789","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M100 50 L200 150 Z\"/></svg>","usage":{"total_tokens":1024,"input_tokens":512,"output_tokens":512}}
@@ -2045,24 +2054,27 @@ components:
         SVGStreamEvent:
             description: |
                 Streaming event for SVG operations (SSE format).
-                Events flow in up to three phases:
-                1. `reasoning` - Model thinking about design approach (create/edit/animate only)
-                2. `draft` - Streaming partial SVG chunks as generated
-                3. `content` - Final postprocessed, optimized SVG
+                Events flow in phases (some are optional):
+                - `reasoning.delta` - Model reasoning token chunks (create/edit/animate only)
+                - `draft.delta` - Streaming SVG chunks as they are generated
+                - `content.start` - Optional notification that finalization has started
+                - `content` - Final postprocessed, optimized SVG
             oneOf:
-                - $ref: "#/components/schemas/SVGReasoningStreamEvent"
-                - $ref: "#/components/schemas/SVGDraftStreamEvent"
+                - $ref: "#/components/schemas/SVGReasoningDeltaStreamEvent"
+                - $ref: "#/components/schemas/SVGDraftDeltaStreamEvent"
+                - $ref: "#/components/schemas/SVGContentStartStreamEvent"
                 - $ref: "#/components/schemas/SVGContentStreamEvent"
             discriminator:
                 propertyName: event
                 mapping:
-                    reasoning: "#/components/schemas/SVGReasoningStreamEvent"
-                    draft: "#/components/schemas/SVGDraftStreamEvent"
+                    reasoning.delta: "#/components/schemas/SVGReasoningDeltaStreamEvent"
+                    draft.delta: "#/components/schemas/SVGDraftDeltaStreamEvent"
+                    content.start: "#/components/schemas/SVGContentStartStreamEvent"
                     content: "#/components/schemas/SVGContentStreamEvent"
 
-        SVGReasoningStreamEvent:
+        SVGReasoningDeltaStreamEvent:
             type: object
-            description: A server-sent event containing model reasoning for SVG operations.
+            description: A server-sent event containing a chunk of model reasoning.
             required:
                 - event
                 - id
@@ -2071,7 +2083,7 @@ components:
             properties:
                 event:
                     type: string
-                    const: reasoning
+                    const: reasoning.delta
                     description: Event type discriminator.
                 id:
                     type: string
@@ -2083,11 +2095,11 @@ components:
                     example: ""
                 text:
                     type: string
-                    description: Reasoning text describing the model's approach.
+                    description: A reasoning text chunk.
 
-        SVGDraftStreamEvent:
+        SVGDraftDeltaStreamEvent:
             type: object
-            description: A server-sent event containing a draft SVG chunk.
+            description: A server-sent event containing a chunk of draft SVG markup.
             required:
                 - event
                 - id
@@ -2095,7 +2107,7 @@ components:
             properties:
                 event:
                     type: string
-                    const: draft
+                    const: draft.delta
                     description: Event type discriminator.
                 id:
                     type: string
@@ -2105,6 +2117,22 @@ components:
                     type: string
                     description: A partial SVG chunk.
                     example: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">...</svg>
+
+        SVGContentStartStreamEvent:
+            type: object
+            description: A server-sent event indicating the server is finalizing the response.
+            required:
+                - event
+                - id
+            properties:
+                event:
+                    type: string
+                    const: content.start
+                    description: Event type discriminator.
+                id:
+                    type: string
+                    description: A unique identifier for the SVG operation.
+                    example: svg-abc123
 
         SVGContentStreamEvent:
             type: object
