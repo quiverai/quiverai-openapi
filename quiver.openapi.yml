@@ -1351,6 +1351,12 @@ components:
                   required:
                       - model
                       - messages
+            example:
+                model: arrow-0.5
+                stream: false
+                messages:
+                    - role: user
+                      content: Create a logo for a new startup!
         CreateChatCompletionResponse:
             type: object
             description: Represents a chat completion response returned by model, based on the provided input.
@@ -1924,6 +1930,13 @@ components:
                               $ref: "#/components/schemas/ImageInputReference"
                       aspect_ratio:
                           $ref: "#/components/schemas/AspectRatio"
+            example:
+                model: arrow-0.5
+                stream: false
+                prompt: Generate an icon of a unicorn
+                n: 1
+                temperature: 1
+                top_p: 1
         EditSVGRequest:
             type: object
             description: Not Implemented
@@ -2019,6 +2032,18 @@ components:
                               manually for best results.
                           default: false
                           example: true
+            example:
+                model: arrow-0.5
+                stream: false
+                image:
+                    url: https://example.com/logo.png
+                n: 1
+                temperature: 1
+                top_p: 1
+                frequency_penalty: 0
+                presence_penalty: 0
+                simplify_if_needed: false
+                auto_crop: false
         VectorizabilityCheckRequest:
             type: object
             required:
