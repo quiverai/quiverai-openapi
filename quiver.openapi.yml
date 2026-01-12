@@ -269,10 +269,6 @@ paths:
                     application/json:
                         schema:
                             $ref: "#/components/schemas/GenerateSVGRequest"
-                        example:
-                            model: arrow-0.5
-                            stream: false
-                            prompt: Generate an icon of a unicorn
                         examples:
                             basic:
                                 summary: Basic SVG generation
@@ -583,11 +579,6 @@ paths:
                     application/json:
                         schema:
                             $ref: "#/components/schemas/VectorizeSVGRequest"
-                        example:
-                            model: arrow-0.5
-                            stream: false
-                            image:
-                                url: https://example.com/logo.png
                         examples:
                             basic:
                                 summary: Basic image vectorization (non-streaming)
