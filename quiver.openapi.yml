@@ -55,6 +55,7 @@ paths:
                 Creates a model response for the given chat conversation.
     /v1/models:
         get:
+            x-hidden: true
             operationId: listModels
             tags:
                 - Models
@@ -125,6 +126,7 @@ paths:
                                         param: null
     /v1/models/{model}:
         get:
+            x-hidden: true
             operationId: retrieveModel
             tags:
                 - Models
@@ -394,6 +396,7 @@ paths:
                                         param: null
     /v1/svgs/edits:
         post:
+            x-hidden: true
             operationId: editSVG
             tags:
                 - Modify SVGs
@@ -476,6 +479,7 @@ paths:
                                 $ref: "#/components/schemas/Error"
     /v1/svgs/animations:
         post:
+            x-hidden: true
             operationId: animateSVG
             tags:
                 - Modify SVGs
@@ -691,6 +695,7 @@ paths:
                                         param: null
     /v1/svgs/vectorizations/checks:
         post:
+            x-hidden: true
             operationId: checkSVGVectorizability
             tags:
                 - SVG Utilities
@@ -777,6 +782,7 @@ paths:
                                         param: null
     /v1/svgs/icons/generations:
         post:
+            x-hidden: true
             operationId: generateIcon
             tags:
                 - Create SVGs
@@ -1945,7 +1951,6 @@ components:
                 temperature: 1
                 top_p: 1
                 presence_penalty: 0
-                simplify_if_needed: false
                 auto_crop: false
         VectorizabilityCheckRequest:
             type: object
