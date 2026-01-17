@@ -599,7 +599,6 @@ paths:
                                     frequency_penalty: 0.1
                                     presence_penalty: 0.0
                                     seed: 42
-                                    simplify_if_needed: true
                                     auto_crop: true
                                     image:
                                         url: https://example.com/photo.jpg
@@ -608,7 +607,6 @@ paths:
                                 value:
                                     model: arrow-0.5
                                     stream: true
-                                    simplify_if_needed: true
                                     auto_crop: true
                                     image:
                                         url: https://example.com/photo.jpg
@@ -2015,14 +2013,6 @@ components:
                       image:
                           $ref: "#/components/schemas/ImageInputReference"
                           description: The source image to vectorize (exactly one required)
-                      simplify_if_needed:
-                          type: boolean
-                          description: |
-                              If true, the image is analyzed for vectorizability. Images deemed
-                              unsuitable (e.g., photos with complex textures) are automatically
-                              simplified before vectorization to improve results.
-                          default: false
-                          example: true
                       auto_crop:
                           type: boolean
                           description: |
