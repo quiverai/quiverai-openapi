@@ -95,7 +95,6 @@ paths:
                                               "stop",
                                               "frequency_penalty",
                                               "presence_penalty",
-                                              "seed",
                                           ]
                 "401":
                     description: Unauthorized
@@ -177,7 +176,6 @@ paths:
                                                 "stop",
                                                 "frequency_penalty",
                                                 "presence_penalty",
-                                                "seed",
                                             ]
                                 arrow-0.5-preview:
                                     summary: Arrow 0.5 Preview
@@ -205,7 +203,6 @@ paths:
                                                 "stop",
                                                 "frequency_penalty",
                                                 "presence_penalty",
-                                                "seed",
                                             ]
                 "404":
                     description: Model not found
@@ -277,7 +274,7 @@ paths:
                                     stream: false
                                     prompt: Generate an icon of a unicorn
                             all-params:
-                                summary: Non-streaming generation using all optional parameters (includes deprecated seed)
+                                summary: Non-streaming generation using all optional parameters
                                 value:
                                     model: arrow-0.5
                                     stream: false
@@ -290,7 +287,6 @@ paths:
                                     max_output_tokens: 4096
                                     frequency_penalty: 0.1
                                     presence_penalty: 0.2
-                                    seed: 42
                                     references:
                                         - url: https://example.com/uploads/reference-style.png
                                         - base64: iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==
@@ -588,7 +584,7 @@ paths:
                                     image:
                                         url: https://example.com/logo.png
                             all-params:
-                                summary: Non-streaming vectorization using all optional parameters (includes deprecated seed)
+                                summary: Non-streaming vectorization using all optional parameters
                                 value:
                                     model: arrow-0.5
                                     stream: false
@@ -598,7 +594,6 @@ paths:
                                     max_output_tokens: 4096
                                     frequency_penalty: 0.1
                                     presence_penalty: 0.0
-                                    seed: 42
                                     auto_crop: true
                                     image:
                                         url: https://example.com/photo.jpg
@@ -1332,18 +1327,6 @@ components:
                           type: integer
                           nullable: true
                           x-omitempty: true
-                      seed:
-                          type: integer
-                          nullable: true
-                          x-omitempty: true
-                          deprecated: true
-                          description: >
-                              This feature is in Beta.
-
-                              If specified, our system will make a best effort to sample deterministically, such that repeated requests with the same `seed` and parameters should return the same result.
-
-                              Determinism is not guaranteed.
-
                       stream_options:
                           $ref: "#/components/schemas/ChatCompletionStreamOptions"
                   required:
@@ -1726,7 +1709,6 @@ components:
                             "stop",
                             "frequency_penalty",
                             "presence_penalty",
-                            "seed",
                         ]
         Modality:
             type: string
@@ -1757,7 +1739,6 @@ components:
                 - frequency_penalty
                 - presence_penalty
                 - stop
-                - seed
         ModelPricing:
             type: object
             description: Pricing information for the model (per token, in USD as strings to avoid floating point issues).
@@ -1892,17 +1873,6 @@ components:
                         Number between -2.0 and 2.0. Positive values penalize new tokens based on
                         whether they appear in the text so far, increasing the model's likelihood
                         to talk about new topics.
-                seed:
-                    type: integer
-                    nullable: true
-                    deprecated: true
-                    description: >
-                        This feature is in Beta.
-
-                        If specified, our system will make a best effort to sample deterministically, such that repeated requests with the same `seed` and parameters should return the same result.
-
-                        Determinism is not guaranteed.
-
         GenerateSVGRequest:
             allOf:
                 - $ref: "#/components/schemas/SVGRequestBase"
