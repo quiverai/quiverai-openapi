@@ -93,7 +93,6 @@ paths:
                                               "temperature",
                                               "top_p",
                                               "stop",
-                                              "frequency_penalty",
                                               "presence_penalty",
                                           ]
                 "401":
@@ -174,7 +173,6 @@ paths:
                                                 "temperature",
                                                 "top_p",
                                                 "stop",
-                                                "frequency_penalty",
                                                 "presence_penalty",
                                             ]
                                 arrow-0.5-preview:
@@ -201,7 +199,6 @@ paths:
                                                 "temperature",
                                                 "top_p",
                                                 "stop",
-                                                "frequency_penalty",
                                                 "presence_penalty",
                                             ]
                 "404":
@@ -280,12 +277,10 @@ paths:
                                     stream: false
                                     prompt: Generate a minimalist unicorn icon for a SaaS dashboard
                                     instructions: Use a flat monochrome style with rounded corners and clean geometry. Avoid gradients. Return only SVG markup.
-                                    aspect_ratio: "1:1"
                                     n: 2
                                     temperature: 0.4
                                     top_p: 0.95
                                     max_output_tokens: 4096
-                                    frequency_penalty: 0.1
                                     presence_penalty: 0.2
                                     references:
                                         - url: https://example.com/uploads/reference-style.png
@@ -303,7 +298,6 @@ paths:
                                     prompt: Generate an icon of a unicorn
                                     references:
                                         - url: https://example.com/uploads/source1.png
-                                    aspect_ratio: "1:1"
             responses:
                 "200":
                     description: OK
@@ -592,7 +586,6 @@ paths:
                                     temperature: 0.3
                                     top_p: 0.9
                                     max_output_tokens: 4096
-                                    frequency_penalty: 0.1
                                     presence_penalty: 0.0
                                     auto_crop: true
                                     image:
@@ -1259,17 +1252,6 @@ components:
                           $ref: "#/components/schemas/ModelIdsShared"
                       reasoning_effort:
                           $ref: "#/components/schemas/ReasoningEffort"
-                      frequency_penalty:
-                          type: number
-                          default: 0
-                          minimum: -2
-                          maximum: 2
-                          nullable: true
-                          x-omitempty: true
-                          description: |
-                              Number between -2.0 and 2.0. Positive values penalize new tokens based on
-                              their existing frequency in the text so far, decreasing the model's
-                              likelihood to repeat the same line verbatim.
                       presence_penalty:
                           type: number
                           default: 0
@@ -1707,7 +1689,6 @@ components:
                             "temperature",
                             "top_p",
                             "stop",
-                            "frequency_penalty",
                             "presence_penalty",
                         ]
         Modality:
@@ -1736,7 +1717,6 @@ components:
                 - top_p
                 - top_k
                 - repetition_penalty
-                - frequency_penalty
                 - presence_penalty
                 - stop
         ModelPricing:
@@ -1853,16 +1833,6 @@ components:
                     default: 1.0
                     minimum: 0
                     maximum: 2
-                frequency_penalty:
-                    type: number
-                    default: 0
-                    minimum: -2
-                    maximum: 2
-                    nullable: true
-                    description: |
-                        Number between -2.0 and 2.0. Positive values penalize new tokens based on
-                        their existing frequency in the text so far, decreasing the model's
-                        likelihood to repeat the same line verbatim.
                 presence_penalty:
                     type: number
                     default: 0
@@ -1896,8 +1866,6 @@ components:
                               Maximum of 4 images.
                           items:
                               $ref: "#/components/schemas/ImageInputReference"
-                      aspect_ratio:
-                          $ref: "#/components/schemas/AspectRatio"
             example:
                 model: arrow-0.5
                 stream: false
@@ -1946,30 +1914,6 @@ components:
                         $ref: "#/components/schemas/SVGDocument"
                 usage:
                     $ref: "#/components/schemas/Usage"
-        # Aspect Ratio
-        AspectRatio:
-            type: string
-            description: |
-                Aspect ratio constraint for the generated SVG, specified as "width:height".
-                - `1:1`: Square
-                - `4:3`: Standard/classic
-                - `3:4`: Portrait standard
-                - `16:9`: Landscape/widescreen
-                - `9:16`: Portrait/tall (mobile)
-                - `3:2`: Photo landscape
-                - `2:3`: Photo portrait
-                - `21:9`: Ultra-wide/cinematic
-            enum:
-                - "1:1"
-                - "4:3"
-                - "3:4"
-                - "16:9"
-                - "9:16"
-                - "3:2"
-                - "2:3"
-                - "21:9"
-            default: "1:1"
-            example: "1:1"
         AnimateSVGRequest:
             type: object
             description: Not Implemented
@@ -2000,7 +1944,6 @@ components:
                 n: 1
                 temperature: 1
                 top_p: 1
-                frequency_penalty: 0
                 presence_penalty: 0
                 simplify_if_needed: false
                 auto_crop: false
