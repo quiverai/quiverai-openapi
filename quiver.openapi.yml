@@ -81,7 +81,7 @@ paths:
                                       input_modalities: ["text", "image"]
                                       output_modalities: ["svg"]
                                       context_length: 128000
-                                      max_output_length: 16384
+                                      max_output_length: 32768
                                       pricing:
                                           prompt: "0.000001"
                                           completion: "0.000002"
@@ -161,7 +161,7 @@ paths:
                                         input_modalities: ["text", "image"]
                                         output_modalities: ["svg"]
                                         context_length: 128000
-                                        max_output_length: 16384
+                                        max_output_length: 32768
                                         pricing:
                                             prompt: "0.000001"
                                             completion: "0.000002"
@@ -187,7 +187,7 @@ paths:
                                         input_modalities: ["text", "image"]
                                         output_modalities: ["svg"]
                                         context_length: 128000
-                                        max_output_length: 16384
+                                        max_output_length: 32768
                                         pricing:
                                             prompt: "0.000001"
                                             completion: "0.000002"
@@ -1678,7 +1678,7 @@ components:
                 max_output_length:
                     type: integer
                     description: Maximum output length in tokens.
-                    example: 16384
+                    example: 32768
                 pricing:
                     $ref: "#/components/schemas/ModelPricing"
                 supported_operations:
@@ -1822,7 +1822,7 @@ components:
                     description: Maximum tokens in the output
                     example: 2560
                     minimum: 1
-                    maximum: 16384
+                    maximum: 32768
                 stream:
                     type: boolean
                     description: If true, responses are streamed as Server-Sent Events
